@@ -53,4 +53,12 @@ int main(){
     return -1;
   }
 
+  new_socket = accept(sock_fd, (struct sockaddr*)&address,(socklen_t*)&addrlen)
+
+valread = read(new_socket, buffer, 2048);
+printf("%s\n",buffer);
+char *test = "can you hear me now?";
+send(new_socket,test, strlen(test), 0);
+printf("bruv we sent something\n");
+return 0;
 }
