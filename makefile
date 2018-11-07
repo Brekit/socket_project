@@ -1,6 +1,6 @@
 all:
 	cc aws.cpp -o aws
-	cc client.cpp -o cpp
+	cc client.cpp -o client
 aws:
 	cc aws.cpp
 client:

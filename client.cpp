@@ -18,14 +18,30 @@ int main(){
   struct sockaddr_in serv_addr;
 
   const char *msg = "yo nug, was good";
+  if ((cli_soc = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+  {
+    printf("Socket creation error\n");
+    return -1;
+  }
+
+  memset(&serv_addr,'0',sizeof(serv_addr));
 
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_port = htons(PORT);
 
-  char buffer[2048] = {0};
-  cli_soc = socket(AF_INET, SOCK_STREAM, 0);
+  if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0)
+  {
+    printf("\nInvalid Address/ Address not supported\n");
+    return -1;
+  }
 
-  connect(cli_soc, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+  char buffer[2048] = {0};
+
+  if (connect(cli_soc, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+  {
+    printf("\nConnection Failed\n");
+    return -1;
+  }
 
   send(cli_soc, msg, strlen(msg), 0);
   printf("homles, we client sent shit");
