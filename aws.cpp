@@ -17,19 +17,21 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <sys/wait.h>
+#include <iostream>
 
 #define UDPport 24687
 #define clinetTCP 25867
 #define MonitorTCP 26687
 
 int main(){
-  printf("The AWS.2 server has booted up\n");
+  printf("The AWS is up and running\n");
 
 
   int sock_fd, newsock, valread;
   struct sockaddr_in address;
   int addrlen = sizeof(address);
-  char buffer[2048] = {0};
+  //char buffer[2048] = {0};
+  uint32_t target;
 
   if((sock_fd = socket(AF_INET, SOCK_STREAM,0)) == 0)
   {
@@ -55,10 +57,10 @@ int main(){
 
   int new_socket = accept(sock_fd, (struct sockaddr *)&address,(socklen_t*)&addrlen);
 
-valread = read(new_socket, buffer, 2048);
-printf("%s\n",buffer);
-const char *test = "\nAWS: Hey, I got something from you";
-send(new_socket,test, strlen(test), 0);
+valread = recv(new_socket, &target, sizeof(target),0);
+std::cout << target;
+
+//send(new_socket,test, strlen(test), 0);
 printf("AWS: Sent ACK to client\n");
 return 0;
 }

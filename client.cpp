@@ -9,14 +9,21 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <sys/wait.h>
+
+
 #define PORT 24687
 
-int main(){
-  printf("The client has boot up\n");
-  struct sockaddr_in address;
+int main(int argc, char* argv[]){
+  char *pEnd;
+  printf("The client is up and running\n");
+  int link = atoi(argv[1]);
+  int size = atoi(argv[2]);
+  int power = atoi(argv[3]);
+ printf("The client sent link=%d, size=%d, power=%d to AWS.\n", link, size, power);
+
+  //struct sockaddr_in address;
   int cli_soc = 0, valread;
   struct sockaddr_in serv_addr;
-
   const char *msg = "\nClient:Hey, its the client. was good";
   if ((cli_soc = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -43,8 +50,11 @@ int main(){
     perror("Connection Failed");
     return -1;
   }
+  for (int i=0; i<argc; i++){
+    uint32_t un = htonl(atoi(argv[i]));
+  send(cli_soc, &un, sizeof(uint32_t), 0);
+  }
 
-  send(cli_soc, msg, strlen(msg), 0);
   printf("\nClient:Sent message to AWSs");
   valread=read(cli_soc , buffer, 2048);
   printf("%s\n", buffer);
