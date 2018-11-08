@@ -23,12 +23,12 @@
 #define clinetTCP 25867
 #define MonitorTCP 26687
 
-int recieveData(int socket){
-  int valread;
-  int value;
-  valread = recv(socket, &value, sizeof(value),0);
-  std::cout << "Data recieved: " << value << std::endl;
-  return value;
+
+int recieveClient(int socket){
+  int Vals[3];
+  recv(socket,Vals, 3*sizeof(int),0);
+  printf("Link:%d\nSize:%d\nPower:%d\n", Vals[0], Vals[1], Vals[2]);
+  return *Vals;
 }
 
 
@@ -41,6 +41,8 @@ int main(){
   int addrlen = sizeof(address);
   //char buffer[2048] = {0};
   int target=0;
+  int Vals[3];
+  int valread;
 
   if((sock_fd = socket(AF_INET, SOCK_STREAM,0)) == 0)
   {
@@ -65,15 +67,5 @@ int main(){
   }
 
   int new_socket = accept(sock_fd, (struct sockaddr *)&address,(socklen_t*)&addrlen);
-  recieveData(new_socket);
-  /*
-  std::cout << "Data recieved: " << target << std::endl;
-  valread = recv(new_socket, &target, sizeof(target),0);
-
-  valread = recv(new_socket, &target, sizeof(target),0);
-  std::cout << "Data recieved: " << target << std::endl;
- */
-
-//send(new_socket,test, strlen(test), 0);
-printf("\nAWS: Sent ACK to client");
+  recieveClient(new_socket);
 }

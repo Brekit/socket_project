@@ -12,10 +12,11 @@
 
 
 #define PORT 24687
-
+/*
 void sendData(int socket, int value){
-  send(socket, &value, sizeof(value), 0);
+  send(socket, value, sizeof(value), 0);
 }
+*/
 
 int main(int argc, char* argv[]){
   char *pEnd;
@@ -23,6 +24,8 @@ int main(int argc, char* argv[]){
   int link = atoi(argv[1]);
   int size = atoi(argv[2]);
   int power = atoi(argv[3]);
+  int Vals[3] = {link, size, power};
+
  printf("The client sent link=%d, size=%d, power=%d to AWS.\n", link, size, power);
 
   //struct sockaddr_in address;
@@ -40,13 +43,7 @@ int main(int argc, char* argv[]){
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_port = htons(PORT);
   serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-/*
-  if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0)
-  {
-    printf("\nInvalid Address/ Address not supported\n");
-    return -1;
-  }
-*/
+
   char buffer[2048] = {0};
 
   if (connect(cli_soc, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
@@ -54,15 +51,8 @@ int main(int argc, char* argv[]){
     perror("Connection Failed");
     return -1;
 }
+  send(cli_soc, (char*)Vals, 3*sizeof(int), 0);
 
-  sendData(cli_soc, link);
-  sendData(cli_soc, size);
-  sendData(cli_soc, power);
-
-  //send(cli_soc, &size, sizeof(size), 0);
-  //send(cli_soc, &power, sizeof(power), 0);
-
-  printf("\nClient:Sent message to AWSs");
   valread=read(cli_soc , buffer, 2048);
   printf("%s\n", buffer);
   return 0;
