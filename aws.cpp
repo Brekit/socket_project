@@ -23,7 +23,7 @@
 #define MonitorTCP 26687
 
 int main(){
-  printf("The AWS server has booted up\n");
+  printf("The AWS.2 server has booted up\n");
 
 
   int sock_fd, newsock, valread;
@@ -41,15 +41,24 @@ int main(){
   address.sin_addr.s_addr = inet_addr("127.0.0.1");
   address.sin_port = htons(UDPport);
 
-  int bind(int sock_fd, const struct sockaddr *addr,socklen_t addrlen);
-  listen(sock_fd,6);
+  if (bind(sock_fd,  (struct sockaddr *)&address, sizeof address) < 0)
+  {
+    perror("bind failed");
+    exit(EXIT_FAILURE);
+  }
+
+  if (listen(sock_fd,6) < 0)
+  {
+    perror("listen failed");
+    exit(EXIT_FAILURE);
+  }
 
   int new_socket = accept(sock_fd, (struct sockaddr *)&address,(socklen_t*)&addrlen);
 
 valread = read(new_socket, buffer, 2048);
 printf("%s\n",buffer);
-const char *test = "yo holmes, wazz good";
+const char *test = "\nAWS: Hey, I got something from you";
 send(new_socket,test, strlen(test), 0);
-printf("bruv we sent something\n");
+printf("AWS: Sent ACK to client\n");
 return 0;
 }

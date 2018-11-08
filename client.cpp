@@ -12,12 +12,12 @@
 #define PORT 24687
 
 int main(){
-  printf("Holmes, client started");
+  printf("The client has boot up\n");
   struct sockaddr_in address;
   int cli_soc = 0, valread;
   struct sockaddr_in serv_addr;
 
-  const char *msg = "yo nug, was good";
+  const char *msg = "\nClient:Hey, its the client. was good";
   if ((cli_soc = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
     printf("Socket creation error\n");
@@ -28,23 +28,24 @@ int main(){
 
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_port = htons(PORT);
-
+  serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+/*
   if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0)
   {
     printf("\nInvalid Address/ Address not supported\n");
     return -1;
   }
-
+*/
   char buffer[2048] = {0};
 
   if (connect(cli_soc, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
   {
-    printf("\nConnection Failed\n");
+    perror("Connection Failed");
     return -1;
   }
 
   send(cli_soc, msg, strlen(msg), 0);
-  printf("homles, we client sent shit");
+  printf("\nClient:Sent message to AWSs");
   valread=read(cli_soc , buffer, 2048);
   printf("%s\n", buffer);
   return 0;

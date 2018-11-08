@@ -2,8 +2,8 @@ all:
 	cc aws.cpp -o aws
 	cc client.cpp -o client
 aws:
-	cc aws.cpp
+	cc aws.cpp -o aws
 client:
-	gcc -c client.cpp
+	cc  client.cpp -o client
 clean :
 	rm client aws
