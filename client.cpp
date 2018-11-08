@@ -13,6 +13,10 @@
 
 #define PORT 24687
 
+void sendData(int socket, int value){
+  send(socket, &value, sizeof(value), 0);
+}
+
 int main(int argc, char* argv[]){
   char *pEnd;
   printf("The client is up and running\n");
@@ -51,7 +55,12 @@ int main(int argc, char* argv[]){
     return -1;
 }
 
-  send(cli_soc, &link, sizeof(link), 0);
+  sendData(cli_soc, link);
+  sendData(cli_soc, size);
+  sendData(cli_soc, power);
+
+  //send(cli_soc, &size, sizeof(size), 0);
+  //send(cli_soc, &power, sizeof(power), 0);
 
   printf("\nClient:Sent message to AWSs");
   valread=read(cli_soc , buffer, 2048);

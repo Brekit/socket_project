@@ -23,11 +23,20 @@
 #define clinetTCP 25867
 #define MonitorTCP 26687
 
+int recieveData(int socket){
+  int valread;
+  int value;
+  valread = recv(socket, &value, sizeof(value),0);
+  std::cout << "Data recieved: " << value << std::endl;
+  return value;
+}
+
+
 int main(){
   printf("The AWS is up and running\n");
 
 
-  int sock_fd, newsock, valread;
+  int sock_fd, newsock;
   struct sockaddr_in address;
   int addrlen = sizeof(address);
   //char buffer[2048] = {0};
@@ -35,7 +44,7 @@ int main(){
 
   if((sock_fd = socket(AF_INET, SOCK_STREAM,0)) == 0)
   {
-    printf("\n error, Socket cretion failed");
+    printf("\nerror, Socket cretion failed");
     return -1;
   }
 
@@ -45,22 +54,26 @@ int main(){
 
   if (bind(sock_fd,  (struct sockaddr *)&address, sizeof address) < 0)
   {
-    perror("bind failed");
+    perror("\nbind failed");
     exit(EXIT_FAILURE);
   }
 
   if (listen(sock_fd,6) < 0)
   {
-    perror("listen failed");
+    perror("\nlisten failed");
     exit(EXIT_FAILURE);
   }
 
   int new_socket = accept(sock_fd, (struct sockaddr *)&address,(socklen_t*)&addrlen);
+  recieveData(new_socket);
+  /*
+  std::cout << "Data recieved: " << target << std::endl;
+  valread = recv(new_socket, &target, sizeof(target),0);
 
-valread = recv(new_socket, &target, sizeof(target),0);
-std::cout << "Data recieved: " << target << std::endl;
-
+  valread = recv(new_socket, &target, sizeof(target),0);
+  std::cout << "Data recieved: " << target << std::endl;
+ */
 
 //send(new_socket,test, strlen(test), 0);
-printf("AWS: Sent ACK to client\n");
+printf("\nAWS: Sent ACK to client");
 }
