@@ -49,11 +49,9 @@ int main(int argc, char* argv[]){
   {
     perror("Connection Failed");
     return -1;
-  }
-  for (int i=0; i<argc; i++){
-    uint32_t un = htonl(atoi(argv[i]));
-  send(cli_soc, &un, sizeof(uint32_t), 0);
-  }
+}
+
+  send(cli_soc, &link, sizeof(link), 0);
 
   printf("\nClient:Sent message to AWSs");
   valread=read(cli_soc , buffer, 2048);

@@ -31,7 +31,7 @@ int main(){
   struct sockaddr_in address;
   int addrlen = sizeof(address);
   //char buffer[2048] = {0};
-  uint32_t target;
+  int target=0;
 
   if((sock_fd = socket(AF_INET, SOCK_STREAM,0)) == 0)
   {
@@ -58,9 +58,9 @@ int main(){
   int new_socket = accept(sock_fd, (struct sockaddr *)&address,(socklen_t*)&addrlen);
 
 valread = recv(new_socket, &target, sizeof(target),0);
-std::cout << target;
+std::cout << "Data recieved: " << target << std::endl;
+
 
 //send(new_socket,test, strlen(test), 0);
 printf("AWS: Sent ACK to client\n");
-return 0;
 }
