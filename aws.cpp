@@ -3,6 +3,9 @@
 //UDP 24687
 // TCP with Client 25687
 //TCP with Monitor 26687
+
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -17,7 +20,7 @@
 #include <iostream>
 
 #define UDPport 24687
-#define clientTCP 25687
+#define clinetTCP 25867
 #define MonitorTCP 26687
 
 
@@ -49,7 +52,7 @@ int main(){
 
   address.sin_family = AF_INET;
   address.sin_addr.s_addr = inet_addr("127.0.0.1");
-  address.sin_port = htons(clientTCP);
+  address.sin_port = htons(UDPport);
 
   if (bind(sock_fd,  (struct sockaddr *)&address, sizeof address) < 0)
   {
