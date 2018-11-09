@@ -28,6 +28,29 @@ int recieveClient(int socket){
   return *Vals;
 }
 
+int sendToAllThree(int serva, int servb, int servc, int *Vals){
+  if (send(serva, (char*)Vals, 3*sizeof(int), 0) < 0){
+    perror("failed to send to server A\n");
+    return -1;
+  } else {
+    printf("AWS sent link=%d, size=%d, power=%d to server A.\n", Vals[0],Vals[1],Vals[2]);
+  }
+
+  if (send(servb, (char*)Vals, 3*sizeof(int), 0) < 0){
+    perror("failed to send to server A\n");
+    return -1;
+  } else {
+    printf("AWS sent link=%d, size=%d, power=%d to server B.\n", Vals[0],Vals[1],Vals[2]);
+  }
+
+  if (send(servc, (char*)Vals, 3*sizeof(int), 0) < 0){
+    perror("failed to send to server A\n");
+    return -1;
+  } else {
+    printf("AWS sent link=%d, size=%d, power=%d to server C.\n", Vals[0],Vals[1],Vals[2]);
+  }
+}
+
 
 int main(){
   printf("The AWS is up and running\n");
@@ -41,14 +64,13 @@ int main(){
   int Vals[3];
   int valread;
 
-  // ============ Create All the Sockets ============
+  // ============ Create All the Sockets ============ //
 
   if((cli_soc = socket(AF_INET, SOCK_STREAM,0)) == 0)
   {
     printf("\nerror, client Socket cretion failed");
     return -1;
   }
-
   client.sin_family = AF_INET;
   client.sin_addr.s_addr = inet_addr("127.0.0.1");
   client.sin_port = htons(clientTCP);
@@ -58,54 +80,83 @@ int main(){
     printf("\nerror, Server A socket creation failed");
     return -1;
   }
-
   serverA.sin_family = AF_INET;
   serverA.sin_addr.s_addr = inet_addr("127.0.0.1");
-  serverA.sin_port = htons(clientTCP);
+  serverA.sin_port = htons(UDPport);
 
   if((b_soc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
   {
     printf("\nerror, Server B socket creation failed");
     return -1;
   }
-
   serverB.sin_family = AF_INET;
   serverB.sin_addr.s_addr = inet_addr("127.0.0.1");
-  serverB.sin_port = htons(clientTCP);
+  serverB.sin_port = htons(UDPport);
 
   if((c_soc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
   {
     printf("\nerror, Server C socket creation failed");
     return -1;
   }
-
   serverC.sin_family = AF_INET;
   serverC.sin_addr.s_addr = inet_addr("127.0.0.1");
-  serverC.sin_port = htons(clientTCP);
+  serverC.sin_port = htons(UDPport);
 
   if((mon_soc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
   {
     printf("\nerror, Monitor socket cretion failed");
     return -1;
   }
-
   monitor.sin_family = AF_INET;
   monitor.sin_addr.s_addr = inet_addr("127.0.0.1");
   monitor.sin_port = htons(clientTCP);
 
-
+  // ============ Let's bind ============ //
   if (bind(cli_soc,  (struct sockaddr *)&client, sizeof client) < 0)
   {
-    perror("\nbind failed");
-    exit(EXIT_FAILURE);
+    perror("\nbind to socket failed");
+    return -1;
   }
+
+  if (bind(a_soc,  (struct sockaddr *)&serverA, sizeof serverA) < 0)
+  {
+    perror("\nbind to server A failed");
+    return -1;
+  }
+
+  if (bind(b_soc,  (struct sockaddr *)&serverB, sizeof serverB) < 0)
+  {
+    perror("\nbind to server B failed");
+    return -1;
+  }
+
+  if (bind(c_soc,  (struct sockaddr *)&serverC, sizeof serverC) < 0)
+  {
+    perror("\nbind to server C failed");
+    return -1;
+  }
+
+  if (bind(mon_soc,  (struct sockaddr *)&monitor, sizeof monitor) < 0)
+  {
+    perror("\nbind to monitor failed");
+    return -1;
+  }
+
+  // ============ Listen from client and send to server A,B,C ============ //
 
   if (listen(cli_soc,6) < 0)
   {
     perror("\nlisten failed");
-    exit(EXIT_FAILURE);
+    return -1;
   }
 
   int new_socket = accept(cli_soc, (struct sockaddr *)&client,(socklen_t*)&addrlen);
-  recieveClient(new_socket);
+
+  int x = recieveClient(new_socket);
+
+  sendToAllThree(a_soc, b_soc, c_soc, &x);
+
+
+
+
 }
