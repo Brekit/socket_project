@@ -33,7 +33,7 @@ int main(){
   printf("The AWS is up and running\n");
 
 
-  int sock_fd, newsock;
+  int clientSocket, newsock;
   struct sockaddr_in client;
   int addrlen = sizeof(client);
   //char buffer[2048] = {0};
@@ -41,7 +41,7 @@ int main(){
   int Vals[3];
   int valread;
 
-  if((sock_fd = socket(AF_INET, SOCK_STREAM,0)) == 0)
+  if((clientSocket = socket(AF_INET, SOCK_STREAM,0)) == 0)
   {
     printf("\nerror, Socket cretion failed");
     return -1;
@@ -51,18 +51,18 @@ int main(){
   client.sin_addr.s_addr = inet_addr("127.0.0.1");
   client.sin_port = htons(clientTCP);
 
-  if (bind(sock_fd,  (struct sockaddr *)&client, sizeof client) < 0)
+  if (bind(clientSocket,  (struct sockaddr *)&client, sizeof client) < 0)
   {
     perror("\nbind failed");
     exit(EXIT_FAILURE);
   }
 
-  if (listen(sock_fd,6) < 0)
+  if (listen(clientSocket,6) < 0)
   {
     perror("\nlisten failed");
     exit(EXIT_FAILURE);
   }
 
-  int new_socket = accept(sock_fd, (struct sockaddr *)&client,(socklen_t*)&addrlen);
+  int new_socket = accept(clientSocket, (struct sockaddr *)&client,(socklen_t*)&addrlen);
   recieveClient(new_socket);
 }
