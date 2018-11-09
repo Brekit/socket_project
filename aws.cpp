@@ -33,17 +33,19 @@ int main(){
   printf("The AWS is up and running\n");
 
 
-  int clientSocket, newsock;
-  struct sockaddr_in client;
+  int cli_soc, a_soc, b_soc, c_soc, mon_soc , newsock;
+  struct sockaddr_in client, serverA, serverB, serverC, monitor;
   int addrlen = sizeof(client);
   //char buffer[2048] = {0};
   int target=0;
   int Vals[3];
   int valread;
 
-  if((clientSocket = socket(AF_INET, SOCK_STREAM,0)) == 0)
+  // ============ Create All the Sockets ============
+
+  if((cli_soc = socket(AF_INET, SOCK_STREAM,0)) == 0)
   {
-    printf("\nerror, Socket cretion failed");
+    printf("\nerror, client Socket cretion failed");
     return -1;
   }
 
@@ -51,18 +53,59 @@ int main(){
   client.sin_addr.s_addr = inet_addr("127.0.0.1");
   client.sin_port = htons(clientTCP);
 
-  if (bind(clientSocket,  (struct sockaddr *)&client, sizeof client) < 0)
+  if((a_soc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
+  {
+    printf("\nerror, Server A socket creation failed");
+    return -1;
+  }
+
+  serverA.sin_family = AF_INET;
+  serverA.sin_addr.s_addr = inet_addr("127.0.0.1");
+  serverA.sin_port = htons(clientTCP);
+
+  if((b_soc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
+  {
+    printf("\nerror, Server B socket creation failed");
+    return -1;
+  }
+
+  serverB.sin_family = AF_INET;
+  serverB.sin_addr.s_addr = inet_addr("127.0.0.1");
+  serverB.sin_port = htons(clientTCP);
+
+  if((c_soc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
+  {
+    printf("\nerror, Server C socket creation failed");
+    return -1;
+  }
+
+  serverC.sin_family = AF_INET;
+  serverC.sin_addr.s_addr = inet_addr("127.0.0.1");
+  serverC.sin_port = htons(clientTCP);
+
+  if((mon_soc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
+  {
+    printf("\nerror, Monitor socket cretion failed");
+    return -1;
+  }
+
+  monitor.sin_family = AF_INET;
+  monitor.sin_addr.s_addr = inet_addr("127.0.0.1");
+  monitor.sin_port = htons(clientTCP);
+
+
+  if (bind(cli_soc,  (struct sockaddr *)&client, sizeof client) < 0)
   {
     perror("\nbind failed");
     exit(EXIT_FAILURE);
   }
 
-  if (listen(clientSocket,6) < 0)
+  if (listen(cli_soc,6) < 0)
   {
     perror("\nlisten failed");
     exit(EXIT_FAILURE);
   }
 
-  int new_socket = accept(clientSocket, (struct sockaddr *)&client,(socklen_t*)&addrlen);
+  int new_socket = accept(cli_soc, (struct sockaddr *)&client,(socklen_t*)&addrlen);
   recieveClient(new_socket);
 }
