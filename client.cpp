@@ -11,7 +11,7 @@
 #include <sys/wait.h>
 
 
-#define PORT 24687
+#define PORT 25687
 /*
 void sendData(int socket, int value){
   send(socket, value, sizeof(value), 0);
@@ -26,9 +26,7 @@ int main(int argc, char* argv[]){
   int power = atoi(argv[3]);
   int Vals[3] = {link, size, power};
 
- printf("The client sent link=%d, size=%d, power=%d to AWS.\n", link, size, power);
-
-  //struct sockaddr_in address;
+   //struct sockaddr_in address;
   int cli_soc = 0, valread;
   struct sockaddr_in serv_addr;
   const char *msg = "\nClient:Hey, its the client. was good";
@@ -50,8 +48,13 @@ int main(int argc, char* argv[]){
   {
     perror("Connection Failed");
     return -1;
-}
-  send(cli_soc, (char*)Vals, 3*sizeof(int), 0);
+ }
+  if (send(cli_soc, (char*)Vals, 3*sizeof(int), 0) < 0){
+    perror("failed to send\n");
+    return -1;
+  } else {
+    printf("The client sent link=%d, size=%d, power=%d to AWS.\n", link, size, power);
+  }
 
   valread=read(cli_soc , buffer, 2048);
   printf("%s\n", buffer);
