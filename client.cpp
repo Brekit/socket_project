@@ -28,7 +28,7 @@ int main(int argc, char* argv[]){
 
    //struct sockaddr_in address;
   int cli_soc = 0, valread;
-  struct sockaddr_in serv_addr;
+  struct sockaddr_in aws;
   const char *msg = "\nClient:Hey, its the client. was good";
   if ((cli_soc = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
@@ -36,15 +36,15 @@ int main(int argc, char* argv[]){
     return -1;
   }
 
-  memset(&serv_addr,'0',sizeof(serv_addr));
+  memset(&aws,'0',sizeof(aws));
 
-  serv_addr.sin_family = AF_INET;
-  serv_addr.sin_port = htons(PORT);
-  serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+  aws.sin_family = AF_INET;
+  aws.sin_port = htons(PORT);
+  aws.sin_addr.s_addr = inet_addr("127.0.0.1");
 
   char buffer[2048] = {0};
 
-  if (connect(cli_soc, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+  if (connect(cli_soc, (struct sockaddr *)&aws, sizeof(aws)) < 0)
   {
     perror("Connection Failed");
     return -1;

@@ -34,8 +34,8 @@ int main(){
 
 
   int sock_fd, newsock;
-  struct sockaddr_in address;
-  int addrlen = sizeof(address);
+  struct sockaddr_in client;
+  int addrlen = sizeof(client);
   //char buffer[2048] = {0};
   int target=0;
   int Vals[3];
@@ -47,11 +47,11 @@ int main(){
     return -1;
   }
 
-  address.sin_family = AF_INET;
-  address.sin_addr.s_addr = inet_addr("127.0.0.1");
-  address.sin_port = htons(clientTCP);
+  client.sin_family = AF_INET;
+  client.sin_addr.s_addr = inet_addr("127.0.0.1");
+  client.sin_port = htons(clientTCP);
 
-  if (bind(sock_fd,  (struct sockaddr *)&address, sizeof address) < 0)
+  if (bind(sock_fd,  (struct sockaddr *)&client, sizeof client) < 0)
   {
     perror("\nbind failed");
     exit(EXIT_FAILURE);
@@ -63,6 +63,6 @@ int main(){
     exit(EXIT_FAILURE);
   }
 
-  int new_socket = accept(sock_fd, (struct sockaddr *)&address,(socklen_t*)&addrlen);
+  int new_socket = accept(sock_fd, (struct sockaddr *)&client,(socklen_t*)&addrlen);
   recieveClient(new_socket);
 }
