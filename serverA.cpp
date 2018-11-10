@@ -17,10 +17,10 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <iostream>
-#define UDPport 24687
+#define AWS_SERVA 21687
 
 int main(){
-  printf("Server A is up and running");
+  printf("Server A is up and running\n");
   int awsSoc;
   struct sockaddr_in aws;
   int addrlen = sizeof(int);
@@ -33,16 +33,11 @@ int main(){
   }
   aws.sin_family = AF_INET;
   aws.sin_addr.s_addr = inet_addr("127.0.0.1");
-  aws.sin_port = htons(UDPport);
+  aws.sin_port = htons(AWS_SERVA);
 
   if (bind(awsSoc, (struct sockaddr *)&aws, sizeof aws) < 0)
   {
     perror("\nbind to socket failed");
-    return -1;
-  }
-  if (listen(awsSoc,6) < 0)
-  {
-    perror("\nlisten failed");
     return -1;
   }
 

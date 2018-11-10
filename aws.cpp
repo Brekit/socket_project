@@ -31,8 +31,9 @@ int recieveClient(int socket){
   return *Vals;
 }
 
-int sendToAllThree(int serva, int servb, int servc, int *Vals){
-  if (send(serva, (char*)Vals, 3*sizeof(int), 0) < 0){
+/*
+int sendToAllThree(int serva, int servb, int servc, int *Vals, struct servAInfo){
+  if (sendto(serva, (char*)Vals, 3*sizeof(int), 0, (struct sockaddr *)&servAInfo, sizeof(servAInfo)) < 0){
     perror("failed to send to server A\n");
     return -1;
   } else {
@@ -53,7 +54,7 @@ int sendToAllThree(int serva, int servb, int servc, int *Vals){
     printf("AWS sent link=%d, size=%d, power=%d to server C.\n", Vals[0],Vals[1],Vals[2]);
   }
 }
-
+*/
 
 int main(){
   printf("The AWS is up and running\n");
@@ -121,12 +122,6 @@ int main(){
     return -1;
   }
 
-  if (bind(a_soc,  (struct sockaddr *)&serverA, sizeof serverA) < 0)
-  {
-    perror("\nbind to server A failed");
-    return -1;
-  }
-
   if (bind(b_soc,  (struct sockaddr *)&serverB, sizeof serverB) < 0)
   {
     perror("\nbind to server B failed");
@@ -157,7 +152,12 @@ int main(){
 
   int x = recieveClient(new_socket);
 
-  sendToAllThree(a_soc, b_soc, c_soc, &x);
+  if (sendto(a_soc, (char*)Vals, 3*sizeof(int), 0, (struct sockaddr *)&serverA, sizeof(serverA)) < 0)
+  {
+    perror("Send to server A failed");
+    return -1;
+  }
+//sendToAllThree(a_soc, b_soc, c_soc, &x, struct serverA);
 
 
 
