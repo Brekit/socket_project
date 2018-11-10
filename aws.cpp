@@ -16,6 +16,9 @@
 #include <sys/wait.h>
 #include <iostream>
 
+#define servAPort 21687
+#define servBPort 22687
+#define servCPort 23687
 #define UDPport 24687
 #define clientTCP 25687
 #define MonitorTCP 26687
@@ -82,7 +85,7 @@ int main(){
   }
   serverA.sin_family = AF_INET;
   serverA.sin_addr.s_addr = inet_addr("127.0.0.1");
-  serverA.sin_port = htons(UDPport);
+  serverA.sin_port = htons(servAPort);
 
   if((b_soc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
   {
@@ -91,7 +94,7 @@ int main(){
   }
   serverB.sin_family = AF_INET;
   serverB.sin_addr.s_addr = inet_addr("127.0.0.1");
-  serverB.sin_port = htons(UDPport);
+  serverB.sin_port = htons(servBPort);
 
   if((c_soc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
   {
@@ -100,7 +103,7 @@ int main(){
   }
   serverC.sin_family = AF_INET;
   serverC.sin_addr.s_addr = inet_addr("127.0.0.1");
-  serverC.sin_port = htons(UDPport);
+  serverC.sin_port = htons(servCPort);
 
   if((mon_soc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
   {
