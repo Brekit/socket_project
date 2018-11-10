@@ -1,9 +1,16 @@
 all:
-	cc aws.cpp -o aws
-	cc client.cpp -o client
+	g++ aws.cpp -o aws
+	g++ client.cpp -o client
+	g++ serverA.cpp -o serverA
+	g++ serverB.cpp -o serverB
+	g++ serverC.cpp -o serverC
 aws:
-	cc aws.cpp -o aws
+	g++ aws.cpp -o aws
 client:
-	cc  client.cpp -o client
+	g++ client.cpp -o client
+server:
+	g++ serverA.cpp -o serverA
+	g++ serverB.cpp -o serverB
+	g++ serverC.cpp -o serverC
 clean :
-	rm client aws
+	rm client aws serverA serverB serverC

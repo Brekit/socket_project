@@ -9,44 +9,54 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <sys/wait.h>
-#define PORT 24687
 
-int main(){
-  printf("The client has boot up\n");
-  struct sockaddr_in address;
-  int cli_soc = 0, valread;
-  struct sockaddr_in serv_addr;
 
+#define PORT 25687
+/*
+void sendData(int socket, int value){
+  send(socket, value, sizeof(value), 0);
+}
+*/
+
+int main(int argc, char* argv[]){
+  char *pEnd;
+  printf("The client is up and running\n");
+  int link = atoi(argv[1]);
+  int size = atoi(argv[2]);
+  int power = atoi(argv[3]);
+  int Vals[3] = {link, size, power};
+
+   //struct sockaddr_in address;
+  int awsSoc = 0, valread;
+  struct sockaddr_in aws;
   const char *msg = "\nClient:Hey, its the client. was good";
-  if ((cli_soc = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+  if ((awsSoc = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
     printf("Socket creation error\n");
     return -1;
   }
 
-  memset(&serv_addr,'0',sizeof(serv_addr));
+  memset(&aws,'0',sizeof(aws));
 
-  serv_addr.sin_family = AF_INET;
-  serv_addr.sin_port = htons(PORT);
-  serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-/*
-  if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0)
-  {
-    printf("\nInvalid Address/ Address not supported\n");
-    return -1;
-  }
-*/
+  aws.sin_family = AF_INET;
+  aws.sin_port = htons(PORT);
+  aws.sin_addr.s_addr = inet_addr("127.0.0.1");
+
   char buffer[2048] = {0};
 
-  if (connect(cli_soc, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+  if (connect(awsSoc, (struct sockaddr *)&aws, sizeof(aws)) < 0)
   {
     perror("Connection Failed");
     return -1;
+ }
+  if (send(awsSoc, (char*)Vals, 3*sizeof(int), 0) < 0){
+    perror("failed to send\n");
+    return -1;
+  } else {
+    printf("The client sent link=%d, size=%d, power=%d to AWS.\n", link, size, power);
   }
 
-  send(cli_soc, msg, strlen(msg), 0);
-  printf("\nClient:Sent message to AWSs");
-  valread=read(cli_soc , buffer, 2048);
+  valread=read(awsSoc , buffer, 2048);
   printf("%s\n", buffer);
   return 0;
 
