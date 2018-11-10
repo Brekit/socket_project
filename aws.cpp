@@ -25,10 +25,10 @@
 
 
 int recieveClient(int socket){
-  int Vals[3];
-  recv(socket,Vals, 3*sizeof(int),0);
-  printf("Link:%d\nSize:%d\nPower:%d\n", Vals[0], Vals[1], Vals[2]);
-  return *Vals;
+  int Values[3];
+  recv(socket,Values, 3*sizeof(int),0);
+  printf("Link:%d\nSize:%d\nPower:%d\n", Values[0], Values[1], Values[2]);
+  return *Values;
 }
 
 /*
@@ -152,7 +152,7 @@ int main(){
 
   int x = recieveClient(new_socket);
 
-  if (sendto(a_soc, (char*)Vals, 3*sizeof(int), 0, (struct sockaddr *)&serverA, sizeof(serverA)) < 0)
+  if (sendto(a_soc, (char*)&x, 3*sizeof(int), 0, (struct sockaddr *)&serverA, sizeof(serverA)) < 0)
   {
     perror("Send to server A failed");
     return -1;
