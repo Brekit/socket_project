@@ -24,11 +24,18 @@
 #define MonitorTCP 26687
 
 
-int recieveClient(int socket){
+int recieveClient(int socket, struct sockaddr_in server, int socketa){
   int Values[3];
   recv(socket,Values, 3*sizeof(int),0);
   printf("Link:%d\nSize:%d\nPower:%d\n", Values[0], Values[1], Values[2]);
-  return *Values;
+
+  if (sendto(socketa, (char*)Values, 3*sizeof(int), 0, (struct sockaddr *)&server , sizeof(server)) < 0)
+  {
+    perror("Send to server A failed");
+    return -1;
+  }
+
+  //return *Values;
 }
 
 /*
@@ -150,13 +157,9 @@ int main(){
 
   int new_socket = accept(cli_soc, (struct sockaddr *)&client,(socklen_t*)&addrlen);
 
-  int x = recieveClient(new_socket);
+  int x = recieveClient(new_socket, serverA, a_soc);
 
-  if (sendto(a_soc, (char*)&x, 3*sizeof(int), 0, (struct sockaddr *)&serverA, sizeof(serverA)) < 0)
-  {
-    perror("Send to server A failed");
-    return -1;
-  }
+
 //sendToAllThree(a_soc, b_soc, c_soc, &x, struct serverA);
 
 
