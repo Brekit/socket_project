@@ -18,10 +18,10 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <iostream>
-#define AWS_SERVA 22687
+#define AWS_SERVB 22687
 
 int main(){
-  printf("Server A is up and running\n");
+  printf("Server B is up and running\n");
   int awsSoc;
   struct sockaddr_in aws;
   //struct sockaddr_storage src_addr;
@@ -31,12 +31,12 @@ int main(){
   //memset(&hints,0,sizeof(hints));
   if((awsSoc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
   {
-    printf("\nerror, Server A socket creation failed");
+    printf("\nerror, Server B socket creation failed");
     return -1;
   }
   aws.sin_family = AF_INET;
   aws.sin_addr.s_addr = inet_addr("127.0.0.1");
-  aws.sin_port = htons(AWS_SERVA);
+  aws.sin_port = htons(AWS_SERVB);
 
   if (bind(awsSoc, (struct sockaddr *)&aws, sizeof aws) < 0)
   {

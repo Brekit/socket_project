@@ -102,18 +102,6 @@ int main(){
     return -1;
   }
 
-  if (bind(b_soc,  (struct sockaddr *)&serverB, sizeof serverB) < 0)
-  {
-    perror("\nbind to server B failed");
-    return -1;
-  }
-
-  if (bind(c_soc,  (struct sockaddr *)&serverC, sizeof serverC) < 0)
-  {
-    perror("\nbind to server C failed");
-    return -1;
-  }
-
   if (bind(mon_soc,  (struct sockaddr *)&monitor, sizeof monitor) < 0)
   {
     perror("\nbind to monitor failed");
@@ -134,6 +122,8 @@ int main(){
 
 
   sendData(a_soc, serverA, x);
+  sendData(b_soc, serverB, x);
+  sendData(c_soc, serverC, x);
 
 
 
