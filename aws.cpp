@@ -67,7 +67,7 @@ int main(){
   int target=0;
   int Vals[3];
   int valread;
-
+  memset(&serverA,'0',sizeof(serverA));
   // ============ Create All the Sockets ============ //
 
   if((cli_soc = socket(AF_INET, SOCK_STREAM,0)) == 0)

@@ -23,9 +23,11 @@ int main(){
   printf("Server A is up and running\n");
   int awsSoc;
   struct sockaddr_in aws;
+  //struct sockaddr_storage src_addr;
+  //socklen_t src_addr_len=sizeof(src_addr);
   int addrlen = sizeof(int);
   int Vals[3];
-
+  //memset(&hints,0,sizeof(hints));
   if((awsSoc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
   {
     printf("\nerror, Server A socket creation failed");
@@ -40,8 +42,8 @@ int main(){
     perror("\nbind to socket failed");
     return -1;
   }
-
   int new_socket = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)&addrlen);
-  recv(awsSoc,&Vals, 3*sizeof(int),0);
+  //recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&src_addr,&src_addr_len);
+  recv(awsSoc,Vals, 3*sizeof(int),0);
   printf("Link:%d\nSize:%d\nPower:%d\n", Vals[0], Vals[1], Vals[2]);
 }
