@@ -35,7 +35,7 @@ int sendData(int socket, struct sockaddr_in server, int *Data){
 int *recieveClient(int socket){
   static int Values[3];
   recv(socket,Values, 3*sizeof(int),0);
-  printf("Link:%d\nSize:%d\nPower:%d\n", Values[0], Values[1], Values[2]);
+  printf("Link:%d Size:%d Power:%d\n", Values[0], Values[1], Values[2]);
   return Values;
 }
 

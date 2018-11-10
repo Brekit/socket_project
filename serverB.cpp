@@ -46,5 +46,5 @@ int main(){
   int new_socket = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)&addrlen);
   //recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&src_addr,&src_addr_len);
   recv(awsSoc,Vals, 3*sizeof(int),0);
-  printf("Link:%d\nSize:%d\nPower:%d\n", Vals[0], Vals[1], Vals[2]);
+  printf("Link:%d sSize:%d Power:%d\n", Vals[0], Vals[1], Vals[2]);
 }
