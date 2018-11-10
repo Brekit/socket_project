@@ -13,4 +13,4 @@ server:
 	g++ serverB.cpp -o serverB
 	g++ serverC.cpp -o serverC
 clean :
-	rm client aws serverA serverB server C
+	rm client aws serverA serverB serverC

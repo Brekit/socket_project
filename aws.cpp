@@ -23,45 +23,22 @@
 #define clientTCP 25687
 #define MonitorTCP 26687
 
-
-int recieveClient(int socket, struct sockaddr_in server, int socketa){
-  int Values[3];
-  recv(socket,Values, 3*sizeof(int),0);
-  printf("Link:%d\nSize:%d\nPower:%d\n", Values[0], Values[1], Values[2]);
-
-  if (sendto(socketa, (char*)Values, 3*sizeof(int), 0, (struct sockaddr *)&server , sizeof(server)) < 0)
+int sendData(int socket, struct sockaddr_in server, int *Data){
+  if (sendto(socket, (char*)Data, 3*sizeof(int), 0, (struct sockaddr *)&server , sizeof(server)) < 0)
   {
     perror("Send to server A failed");
     return -1;
   }
-
-  //return *Values;
 }
 
-/*
-int sendToAllThree(int serva, int servb, int servc, int *Vals, struct servAInfo){
-  if (sendto(serva, (char*)Vals, 3*sizeof(int), 0, (struct sockaddr *)&servAInfo, sizeof(servAInfo)) < 0){
-    perror("failed to send to server A\n");
-    return -1;
-  } else {
-    printf("AWS sent link=%d, size=%d, power=%d to server A.\n", Vals[0],Vals[1],Vals[2]);
-  }
 
-  if (send(servb, (char*)Vals, 3*sizeof(int), 0) < 0){
-    perror("failed to send to server A\n");
-    return -1;
-  } else {
-    printf("AWS sent link=%d, size=%d, power=%d to server B.\n", Vals[0],Vals[1],Vals[2]);
-  }
-
-  if (send(servc, (char*)Vals, 3*sizeof(int), 0) < 0){
-    perror("failed to send to server A\n");
-    return -1;
-  } else {
-    printf("AWS sent link=%d, size=%d, power=%d to server C.\n", Vals[0],Vals[1],Vals[2]);
-  }
+int *recieveClient(int socket){
+  static int Values[3];
+  recv(socket,Values, 3*sizeof(int),0);
+  printf("Link:%d\nSize:%d\nPower:%d\n", Values[0], Values[1], Values[2]);
+  return Values;
 }
-*/
+
 
 int main(){
   printf("The AWS is up and running\n");
@@ -70,11 +47,7 @@ int main(){
   int cli_soc, a_soc, b_soc, c_soc, mon_soc , newsock;
   struct sockaddr_in client, serverA, serverB, serverC, monitor;
   int addrlen = sizeof(client);
-  //char buffer[2048] = {0};
-  int target=0;
-  int Vals[3];
-  int valread;
-  memset(&serverA,'0',sizeof(serverA));
+
   // ============ Create All the Sockets ============ //
 
   if((cli_soc = socket(AF_INET, SOCK_STREAM,0)) == 0)
@@ -156,11 +129,11 @@ int main(){
   }
 
   int new_socket = accept(cli_soc, (struct sockaddr *)&client,(socklen_t*)&addrlen);
+  int *x;
+  x = recieveClient(new_socket);
 
-  int x = recieveClient(new_socket, serverA, a_soc);
 
-
-//sendToAllThree(a_soc, b_soc, c_soc, &x, struct serverA);
+  sendData(a_soc, serverA, x);
 
 
 
