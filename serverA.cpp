@@ -19,6 +19,7 @@
 #include <iostream>
 #include <string.h>
 #include <fstream>
+#include <sstream>
 
 #define AWS_SERVA 21687
 
@@ -29,7 +30,7 @@ int main(){
   //struct sockaddr_storage src_addr;
   //socklen_t src_addr_len=sizeof(src_addr);
   int addrlen = sizeof(int);
-  char Vals[3];
+  int Vals[3];
   //memset(&hints,0,sizeof(hints));
   if((awsSoc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
   {
@@ -48,16 +49,33 @@ int main(){
   int new_socket = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)&addrlen);
   //recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&src_addr,&src_addr_len);
   recv(awsSoc,Vals, 3*sizeof(int),0);
+  shutdown(awsSoc, SHUT_RDWR);
   printf("The Server A received input:%d\n", Vals[0]);
 
-  std::ifstream databaseA ("databaseA.csv", std::ifstream::in);
+ std::stringstream x;
+ x << Vals[0];
+ std::string numberAsString(x.str());
+
+ std::cout << "Checking for entry in db " << numberAsString << std::endl;
+
+
+  std::ifstream databaseA ("database_a.csv");
+
+  if(!databaseA.is_open()) std::cout << "Error: Couldn't open database" << std::endl;
   std::string link;
-  while(databaseA.good())
-  {
-    std::getline(databaseA, link, ",");
-      if(link.compare(&Vals[0]) == 0){
+
+    for (int i = 0; i < 1; i++) {
+      std::getline(databaseA, link, ','))
+
+
+    }
+    {
+      std::cout << "Searching..." << link << " in  databaseA" << std::endl;
+      if(link.compare(numberAsString) == 0){
         std::cout << "Found " << link << "in  databaseA";
       }
-  }
+    }
+
   databaseA.close();
+
 }
