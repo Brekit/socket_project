@@ -17,6 +17,9 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <iostream>
+#include <string.h>
+#include <fstream>
+
 #define AWS_SERVA 21687
 
 int main(){
@@ -26,7 +29,7 @@ int main(){
   //struct sockaddr_storage src_addr;
   //socklen_t src_addr_len=sizeof(src_addr);
   int addrlen = sizeof(int);
-  int Vals[3];
+  char Vals[3];
   //memset(&hints,0,sizeof(hints));
   if((awsSoc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
   {
@@ -46,4 +49,15 @@ int main(){
   //recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&src_addr,&src_addr_len);
   recv(awsSoc,Vals, 3*sizeof(int),0);
   printf("The Server A received input:%d\n", Vals[0]);
+
+  std::ifstream databaseA ("databaseA.csv", std::ifstream::in);
+  std::string link;
+  while(databaseA.good())
+  {
+    std::getline(databaseA, link, ",");
+      if(link.compare(&Vals[0]) == 0){
+        std::cout << "Found " << link << "in  databaseA";
+      }
+  }
+  databaseA.close();
 }
