@@ -20,6 +20,7 @@
 #include <string.h>
 #include <fstream>
 #include <sstream>
+#include <vector>
 
 #define AWS_SERVA 21687
 
@@ -64,17 +65,39 @@ int main(){
   if(!databaseA.is_open()) std::cout << "Error: Couldn't open database" << std::endl;
   std::string link;
 
-    for (int i = 0; i < 1; i++) {
-      std::getline(databaseA, link, ','))
+    std::string line, field;
 
+    std::vector< std::vector<std::string> > array;  // the 2D array
+    std::vector<std::string> v;                // array of values for one line only
 
-    }
+    while ( getline(databaseA,line) )    // get next line in file
     {
-      std::cout << "Searching..." << link << " in  databaseA" << std::endl;
-      if(link.compare(numberAsString) == 0){
-        std::cout << "Found " << link << "in  databaseA";
-      }
+        v.clear();
+        std::stringstream ss(line);
+
+        while (getline(ss,field,','))  // break line into comma delimitted fields
+        {
+            v.push_back(field);  // add each field to the 1D array
+        }
+
+        array.push_back(v);  // add the 1D array to the 2D array
     }
+
+    // print out what was read in
+
+    for (size_t i=0; i<array.size(); ++i)
+    {
+        for (size_t j=0; j<array[i].size(); ++j)
+        {
+            std::cout << array[i][j] << "|"; // (separate fields by |)
+        }
+        std::cout << "\n";
+    }
+
+    std::cout << "myvector contains:";
+    for (unsigned i=0; i<v.size(); i++)
+      std::cout << ' ' << v[i];
+    std::cout << '\n';
 
   databaseA.close();
 
