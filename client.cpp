@@ -56,8 +56,10 @@ int main(int argc, char* argv[]){
     printf("The client sent link=%d, size=%d, power=%d to AWS.\n", link, size, power);
   }
 
+  /*
   valread=read(awsSoc , buffer, 2048);
   printf("%s\n", buffer);
   return 0;
+  */
 
 }

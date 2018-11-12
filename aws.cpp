@@ -109,7 +109,7 @@ int main(){
   }
 
   // ============ Listen from client and send to server A,B,C ============ //
-
+  while(true){
   if (listen(cli_soc,6) < 0)
   {
     perror("\nlisten failed");
@@ -118,6 +118,7 @@ int main(){
 
   int new_socket = accept(cli_soc, (struct sockaddr *)&client,(socklen_t*)&addrlen);
   int *x;
+
   x = recieveClient(new_socket);
 
 
@@ -125,7 +126,7 @@ int main(){
   sendData(b_soc, serverB, x);
   sendData(c_soc, serverC, x);
 
-
+}
 
 
 }

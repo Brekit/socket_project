@@ -82,7 +82,6 @@ int main(){
         }
 
         array.push_back(v);  // add the 1D array to the 2D array
-        if array.
     }
 
     // print out what was read in
