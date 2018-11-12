@@ -77,10 +77,12 @@ int main(){
 
         while (getline(ss,field,','))  // break line into comma delimitted fields
         {
+
             v.push_back(field);  // add each field to the 1D array
         }
 
         array.push_back(v);  // add the 1D array to the 2D array
+        if array.
     }
 
     // print out what was read in
