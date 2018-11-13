@@ -85,21 +85,31 @@ int main(){
     }
 
     // print out what was read in
+    int dbValues[4];
 
     for (size_t i=0; i<array.size(); ++i)
     {
-        for (size_t j=0; j<array[i].size(); ++j)
+      if (array[i][0] == numberAsString){
+        //std::cout << "Found " << numberAsString << std::endl;
+        for(int k=0; k<array[i].size(); k++){
+        dbValues[k] =  stoi(array[i][k]);
+           std::cout << dbValues[k] << "*";
+        }
+      }
+    }
+      /*  for (size_t j=0; j<array[i].size(); ++j)
         {
             std::cout << array[i][j] << "|"; // (separate fields by |)
         }
         std::cout << "\n";
+
     }
 
     std::cout << "myvector contains:";
     for (unsigned i=0; i<v.size(); i++)
       std::cout << ' ' << v[i];
     std::cout << '\n';
-
+*/
   databaseA.close();
 
 }
