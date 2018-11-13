@@ -50,7 +50,7 @@ int main(){
   int new_socket = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)&addrlen);
   //recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&src_addr,&src_addr_len);
   recv(awsSoc,Vals, 3*sizeof(int),0);
-  shutdown(awsSoc, SHUT_RDWR);
+  //close(awsSoc);
   printf("The Server A received input:%d\n", Vals[0]);
 
  std::stringstream x;
@@ -90,16 +90,16 @@ int main(){
         for(int k=0; k<dbA[i].size(); k++)
         {
           dbValues[k] =  stod(dbA[i][k]);
-          std::cout << dbValues[k] << "*";
+          std::cout << dbValues[k] << "*\n";
           }
-          if (sendto(awsSoc, dbValues, 3*sizeof(double), 0, (struct sockaddr *)&aws , sizeof(aws)) < 0){
-            perror("failed to send\n");
-            return -1;
-          } else {
-            printf("Sending link=%.2f aws\n", dbValues[0]);
-        }
       }
     }
+    if (sendto(awsSoc, dbValues, 4*sizeof(double), 0, (struct sockaddr *)&aws , sizeof(aws)) < 0){
+      perror("failed to send\n");
+      return -1;
+    } else {
+      printf("Sending link=%.2f aws\n", dbValues[0]);
+  }
 
   databaseA.close();
 

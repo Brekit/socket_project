@@ -29,6 +29,9 @@ int sendData(int socket, struct sockaddr_in server, int *Data){
     perror("Send to server A failed");
     return -1;
   }
+  else {
+    printf("AWS submitted <%d> to servers\n",Data[0]);
+  }
 }
 
 
@@ -47,6 +50,7 @@ int main(){
   int cli_soc, a_soc, b_soc, c_soc, mon_soc , newsock;
   struct sockaddr_in client, serverA, serverB, serverC, monitor;
   int addrlen = sizeof(client);
+  int addrlen2 = sizeof(serverA);
 
   // ============ Create All the Sockets ============ //
 
@@ -101,7 +105,6 @@ int main(){
     perror("\nbind to socket failed");
     return -1;
   }
-
   if (bind(mon_soc,  (struct sockaddr *)&monitor, sizeof monitor) < 0)
   {
     perror("\nbind to monitor failed");
@@ -109,7 +112,10 @@ int main(){
   }
 
   // ============ Listen from client and send to server A,B,C ============ //
-  while(true){
+  int *x;
+  double linkAVals[5];
+
+
   if (listen(cli_soc,6) < 0)
   {
     perror("\nlisten failed");
@@ -117,16 +123,23 @@ int main(){
   }
 
   int new_socket = accept(cli_soc, (struct sockaddr *)&client,(socklen_t*)&addrlen);
-  int *x;
+
+
 
   x = recieveClient(new_socket);
 
-
   sendData(a_soc, serverA, x);
-  sendData(b_soc, serverB, x);
-  sendData(c_soc, serverC, x);
+  //sendData(b_soc, serverB, x);
+  //sendData(c_soc, serverC, x);
 
+printf("waiting to revieve...\n");
+
+if (recvfrom(a_soc,linkAVals, 4*sizeof(double),0,(struct sockaddr *)&serverA,(socklen_t*)&addrlen2 ) < 0)
+{
+  perror("Couldnt recieve from server A");
+  return -1;
+} else {
+printf("recieved <%.2f>\n", linkAVals[0]);
 }
-
 
 }
