@@ -61,55 +61,46 @@ int main(){
 
 
   std::ifstream databaseA ("database_a.csv");
-
   if(!databaseA.is_open()) std::cout << "Error: Couldn't open database" << std::endl;
   std::string link;
 
     std::string line, field;
 
-    std::vector< std::vector<std::string> > array;  // the 2D array
-    std::vector<std::string> v;                // array of values for one line only
+    std::vector< std::vector<std::string> > dbA;  // the 2D array
+    std::vector<std::string> dbARows;                // array of values for one line only
 
-    while ( getline(databaseA,line) )    // get next line in file
+    while (getline(databaseA,line))    // get next line in file
     {
-        v.clear();
+        dbARows.clear();
         std::stringstream ss(line);
-
         while (getline(ss,field,','))  // break line into comma delimitted fields
         {
-
-            v.push_back(field);  // add each field to the 1D array
+            dbARows.push_back(field);  // add each field to the 1D array
         }
-
-        array.push_back(v);  // add the 1D array to the 2D array
+        dbA.push_back(dbARows);  // add the 1D array to the 2D array
     }
 
     // print out what was read in
-    int dbValues[4];
+    double dbValues[4];
 
-    for (size_t i=0; i<array.size(); ++i)
+    for (size_t i=0; i<dbA.size(); ++i)
     {
-      if (array[i][0] == numberAsString){
-        //std::cout << "Found " << numberAsString << std::endl;
-        for(int k=0; k<array[i].size(); k++){
-        dbValues[k] =  stoi(array[i][k]);
-           std::cout << dbValues[k] << "*";
+      if (dbA[i][0] == numberAsString)
+      {
+        for(int k=0; k<dbA[i].size(); k++)
+        {
+          dbValues[k] =  stod(dbA[i][k]);
+          std::cout << dbValues[k] << "*";
+          }
+          if (sendto(awsSoc, dbValues, 3*sizeof(double), 0, (struct sockaddr *)&aws , sizeof(aws)) < 0){
+            perror("failed to send\n");
+            return -1;
+          } else {
+            printf("Sending link=%.2f aws\n", dbValues[0]);
         }
       }
     }
-      /*  for (size_t j=0; j<array[i].size(); ++j)
-        {
-            std::cout << array[i][j] << "|"; // (separate fields by |)
-        }
-        std::cout << "\n";
 
-    }
-
-    std::cout << "myvector contains:";
-    for (unsigned i=0; i<v.size(); i++)
-      std::cout << ' ' << v[i];
-    std::cout << '\n';
-*/
   databaseA.close();
 
 }
