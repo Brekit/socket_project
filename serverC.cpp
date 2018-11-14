@@ -21,9 +21,15 @@
 #include <iostream>
 #define AWS_SERVC 23687
 
+struct FusedArray{
+  int clientInput[3];
+  double dbValues[5];
+};
+
 int main(){
   printf("Server C is up and running\n");
   int awsSoc;
+  FusedArray recievedSample;
   struct sockaddr_in aws;
   //struct sockaddr_storage src_addr;
   //socklen_t src_addr_len=sizeof(src_addr);
@@ -47,13 +53,14 @@ int main(){
 
   int new_socket = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)&addrlen);
   while(true){
-  if (recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&aws, (socklen_t *)&addrlen) < 0)
+  if (recvfrom(awsSoc,&recievedSample, sizeof(recievedSample),0, (struct sockaddr*)&aws, (socklen_t *)&addrlen) < 0)
   {
     perror("Recieve failed");
     return -1;
   }
   //recv(awsSoc,Vals, 3*sizeof(int),0);
   //close(awsSoc);
-  printf("The Server A received input:%d, %d, %d\n", Vals[0], Vals[1], Vals[2]);
+  printf("The Server A received input:%d, %.2f\n", recievedSample.clientInput[0], recievedSample.dbValues[1]);
+
 }
 }

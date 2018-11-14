@@ -16,6 +16,11 @@
 #include <sys/wait.h>
 #include <iostream>
 
+struct FusedArray{
+  int clientInput[3]={0};
+  double dbValues[5]={0};
+};
+
 #define servAPort 21687
 #define servBPort 22687
 #define servCPort 23687
@@ -46,7 +51,7 @@ int *recieveClient(int socket){
 
 int main(){
   printf("The AWS is up and running\n");
-
+  FusedArray Sample;
 
   int cli_soc, a_soc, b_soc, c_soc, mon_soc , newsock;
   struct sockaddr_in client, serverA, serverB, serverC, monitor;
@@ -117,6 +122,7 @@ int main(){
   double linkAVals[8];
   double linkBVals[8];
 
+while(true){
 
   if (listen(cli_soc,6) < 0)
   {
@@ -151,7 +157,8 @@ else
       //printf("link A val: %0f\n", linkAVals[0]);
       printf("The AWS recieved <1> matches from Backend-server <A> using UDP port <21687>\n");
       printf("sending to C (a)\n");
-      sendData(c_soc, serverC, x);
+      //sendData(c_soc, serverC, x);
+      //sendData(c_soc, serverC, linkAVals);
       //sendData(c_soc, serverC, linkAVals);
 
     }
@@ -175,7 +182,18 @@ else
 
         printf("The AWS recieved <1> matches from Backend-server < B > using UDP port <22687>\n");
         printf("sending to C (b)\n");
-        sendData(c_soc, serverC, x);
+        for(int i =0; i < 4; i++){
+          Sample.clientInput[i] = x[i];
+        }
+        for(int j=0; j < 5; j++){
+          Sample.dbValues[j] = linkAVals[j];
+        }
+
+        if (sendto(c_soc, (char*)&Sample, sizeof(&Sample), 0, (struct sockaddr *)&serverC , sizeof(serverC)) < 0)
+        {
+          perror("Send to server A failed");
+          return -1;
+        }
 
       }
     }
@@ -185,6 +203,6 @@ else
     //   //send message to both client and monitor that nothing was found
     // }
 
-
+}
 
 }
