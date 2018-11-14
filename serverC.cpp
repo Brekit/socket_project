@@ -62,5 +62,7 @@ int main(){
   //close(awsSoc);
   printf("The Server A received input:%d, %.2f\n", recievedSample.clientInput[0], recievedSample.dbValues[3]);
 
+
+
 }
 }
