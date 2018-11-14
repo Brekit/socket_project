@@ -95,7 +95,7 @@ int main(){
       }
     }
 
-    if (sendto(awsSoc, dbValues, 4*sizeof(double), 0, (struct sockaddr *)&aws , sizeof(aws)) < 0){
+    if (sendto(awsSoc, dbValues, 5*sizeof(double), 0, (struct sockaddr *)&aws , sizeof(aws)) < 0){
       perror("failed to send\n");
       return -1;
     } else {

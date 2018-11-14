@@ -22,8 +22,8 @@
 #define AWS_SERVC 23687
 
 struct FusedArray{
-  int clientInput[3];
-  double dbValues[5];
+  int clientInput[3]={0};
+  double dbValues[5]={0};
 };
 
 int main(){
@@ -60,7 +60,7 @@ int main(){
   }
   //recv(awsSoc,Vals, 3*sizeof(int),0);
   //close(awsSoc);
-  printf("The Server A received input:%d, %.2f\n", recievedSample.clientInput[0], recievedSample.dbValues[1]);
+  printf("The Server A received input:%d, %.2f\n", recievedSample.clientInput[0], recievedSample.dbValues[3]);
 
 }
 }

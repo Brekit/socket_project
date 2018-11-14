@@ -119,10 +119,10 @@ int main(){
 
   // ============ Listen from client and send to server A,B,C ============ //
   int *x;
-  double linkAVals[8];
-  double linkBVals[8];
+  double linkAVals[5];
+  double linkBVals[5];
 
-while(true){
+
 
   if (listen(cli_soc,6) < 0)
   {
@@ -186,12 +186,11 @@ else
           Sample.clientInput[i] = x[i];
         }
         for(int j=0; j < 5; j++){
-          Sample.dbValues[j] = linkAVals[j];
+          Sample.dbValues[j] = linkBVals[j];
         }
-
-        if (sendto(c_soc, (char*)&Sample, sizeof(&Sample), 0, (struct sockaddr *)&serverC , sizeof(serverC)) < 0)
+        if (sendto(c_soc, (char*)&Sample, sizeof(Sample), 0, (struct sockaddr *)&serverC , sizeof(serverC)) < 0)
         {
-          perror("Send to server A failed");
+          perror("Send to server C failed");
           return -1;
         }
 
@@ -203,6 +202,6 @@ else
     //   //send message to both client and monitor that nothing was found
     // }
 
-}
+
 
 }
