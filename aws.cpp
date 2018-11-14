@@ -35,6 +35,7 @@ int sendData(int socket, struct sockaddr_in server, int *Data){
 }
 
 
+
 int *recieveClient(int socket){
   static int Values[3];
   recv(socket,Values, 3*sizeof(int),0);
@@ -113,8 +114,8 @@ int main(){
 
   // ============ Listen from client and send to server A,B,C ============ //
   int *x;
-  double linkAVals[5];
-  double linkBVals[5];
+  double linkAVals[8];
+  double linkBVals[8];
 
 
   if (listen(cli_soc,6) < 0)
@@ -131,9 +132,9 @@ int main(){
 
   sendData(a_soc, serverA, x);
   sendData(b_soc, serverB, x);
-  //sendData(c_soc, serverC, x);
 
-if (recvfrom(a_soc,linkAVals, 4*sizeof(double),0,(struct sockaddr *)&serverA,(socklen_t*)&addrlen2 ) < 0)
+
+if (recvfrom(a_soc,linkAVals, 5*sizeof(double),0,(struct sockaddr *)&serverA,(socklen_t*)&addrlen2 ) < 0)
   {
     perror("Couldnt recieve from server A");
     return -1;
@@ -143,16 +144,20 @@ else
     if(int(linkAVals[0])==0)
     {
       //printf("link A val: %0f\n", linkAVals[0]);
-      printf("The AWS recieved <0> matches from Backnend-server <A> using UDP port <21687>\n");
+      printf("The AWS recieved <0> matches from Backend-server <A> using UDP port <21687>\n");
     }
     else
     {
       //printf("link A val: %0f\n", linkAVals[0]);
-      printf("The AWS recieved <1> matches from Backend-server < A > using UDP port <21687>\n");
+      printf("The AWS recieved <1> matches from Backend-server <A> using UDP port <21687>\n");
+      printf("sending to C (a)\n");
+      sendData(c_soc, serverC, x);
+      //sendData(c_soc, serverC, linkAVals);
+
     }
   }
 
-  if (recvfrom(b_soc,linkBVals, 4*sizeof(double),0,(struct sockaddr *)&serverB,(socklen_t*)&addrlen2 ) < 0)
+  if (recvfrom(b_soc,linkBVals, 5*sizeof(double),0,(struct sockaddr *)&serverB,(socklen_t*)&addrlen2 ) < 0)
     {
       perror("Couldnt recieve from server A");
       return -1;
@@ -167,9 +172,19 @@ else
       else
       {
         //printf("link A val: %0f\n", linkBVals[0]);
+
         printf("The AWS recieved <1> matches from Backend-server < B > using UDP port <22687>\n");
+        printf("sending to C (b)\n");
+        sendData(c_soc, serverC, x);
+
       }
     }
+
+    // if (((int(linkAVals[0])==0) && (int(linkBVals[0])==0))
+    // {
+    //   //send message to both client and monitor that nothing was found
+    // }
+
 
 
 }

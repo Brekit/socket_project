@@ -91,7 +91,7 @@ int main(){
            const char * c = dbB[i][k].c_str();
            dbValues[k] =  strtod(c, &point);
            std::cout << dbValues[k] << "*\n";
-           }
+          }
        }
      }
 

@@ -39,23 +39,6 @@ int main(){
   aws.sin_addr.s_addr = inet_addr("127.0.0.1");
   aws.sin_port = htons(AWS_SERVA);
 
-  if (bind(awsSoc, (struct sockaddr *)&aws, sizeof aws) < 0)
-  {
-    perror("\nbind to socket failed");
-    return -1;
-  }
-  int new_socket = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)&addrlen);
-  recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&aws, (socklen_t *)&addrlen);
-  //recv(awsSoc,Vals, 3*sizeof(int),0);
-  //close(awsSoc);
-  printf("The Server A received input:%d\n", Vals[0]);
-
- std::stringstream x;
- x << Vals[0];
- std::string numberAsString(x.str());
-
- std::cout << "Checking for entry in db " << numberAsString << std::endl;
-
   std::ifstream databaseA ("database_a.csv");
   if(!databaseA.is_open()) std::cout << "Error: Couldn't open database" << std::endl;
   std::string link;
@@ -75,6 +58,25 @@ int main(){
         }
         dbA.push_back(dbARows);  // add the 1D array to the 2D array
     }
+      databaseA.close();
+  if (bind(awsSoc, (struct sockaddr *)&aws, sizeof aws) < 0)
+  {
+    perror("\nbind to socket failed");
+    return -1;
+  }
+  int new_socket = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)&addrlen);
+  while(true){
+  recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&aws, (socklen_t *)&addrlen);
+  //recv(awsSoc,Vals, 3*sizeof(int),0);
+  //close(awsSoc);
+  printf("The Server A received input:%d\n", Vals[0]);
+
+ std::stringstream x;
+ x << Vals[0];
+ std::string numberAsString(x.str());
+
+ std::cout << "Checking for entry in db " << numberAsString << std::endl;
+
 
     // print out what was read in
     double dbValues[4];
@@ -99,7 +101,8 @@ int main(){
     } else {
       printf("Sending link=%.2f aws\n", dbValues[0]);
   }
+}
 
-  databaseA.close();
+
 
 }
