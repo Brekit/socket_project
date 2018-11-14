@@ -18,6 +18,10 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <iostream>
+#include <string.h>
+#include <fstream>
+#include <sstream>
+#include <vector>
 #define AWS_SERVB 22687
 
 int main(){
@@ -45,6 +49,59 @@ int main(){
   }
   int new_socket = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)&addrlen);
   //recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&src_addr,&src_addr_len);
-  recv(awsSoc,Vals, 3*sizeof(int),0);
+  recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&aws, (socklen_t *)&addrlen);
   printf("The Server B received input:%d\n", Vals[0]);
+
+  std::stringstream x;
+  x << Vals[0];
+  std::string numberAsString(x.str());
+
+  std::cout << "Checking for entry in db " << numberAsString << std::endl;
+
+   std::ifstream databaseB ("database_b.csv");
+   if(!databaseB.is_open()) std::cout << "Error: Couldn't open database" << std::endl;
+   std::string link;
+
+     std::string line, field;
+
+     std::vector< std::vector<std::string> > dbB;  // the 2D array
+     std::vector<std::string> dbBRows;                // array of values for one line only
+
+     while (getline(databaseB,line))    // get next line in file
+     {
+         dbBRows.clear();
+         std::stringstream ss(line);
+         while (getline(ss,field,','))  // break line into comma delimitted fields
+         {
+             dbBRows.push_back(field);  // add each field to the 1D array
+         }
+         dbB.push_back(dbBRows);  // add the 1D array to the 2D array
+     }
+
+     // print out what was read in
+     double dbValues[4];
+     char *point;
+
+     for (size_t i=0; i<dbB.size(); ++i)
+     {
+       if (dbB[i][0] == numberAsString)
+       {
+         for(int k=0; k<dbB[i].size(); k++)
+         {
+           const char * c = dbB[i][k].c_str();
+           dbValues[k] =  strtod(c, &point);
+           std::cout << dbValues[k] << "*\n";
+           }
+       }
+     }
+
+     if (sendto(awsSoc, dbValues, 4*sizeof(double), 0, (struct sockaddr *)&aws , sizeof(aws)) < 0){
+       perror("failed to send\n");
+       return -1;
+     } else {
+       printf("Sending link=%.2f aws\n", dbValues[0]);
+   }
+
+   databaseB.close();
+
 }

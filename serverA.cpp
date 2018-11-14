@@ -28,11 +28,8 @@ int main(){
   printf("Server A is up and running\n");
   int awsSoc;
   struct sockaddr_in aws;
-  //struct sockaddr_storage src_addr;
-  //socklen_t src_addr_len=sizeof(src_addr);
   int addrlen = sizeof(int);
   int Vals[3];
-  //memset(&hints,0,sizeof(hints));
   if((awsSoc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
   {
     printf("\nerror, Server A socket creation failed");
@@ -59,7 +56,6 @@ int main(){
 
  std::cout << "Checking for entry in db " << numberAsString << std::endl;
 
-
   std::ifstream databaseA ("database_a.csv");
   if(!databaseA.is_open()) std::cout << "Error: Couldn't open database" << std::endl;
   std::string link;
@@ -82,6 +78,7 @@ int main(){
 
     // print out what was read in
     double dbValues[4];
+    char *point;
 
     for (size_t i=0; i<dbA.size(); ++i)
     {
@@ -89,11 +86,13 @@ int main(){
       {
         for(int k=0; k<dbA[i].size(); k++)
         {
-          dbValues[k] =  stod(dbA[i][k]);
+          const char * c = dbA[i][k].c_str();
+          dbValues[k] =  strtod(c, &point);
           std::cout << dbValues[k] << "*\n";
           }
       }
     }
+
     if (sendto(awsSoc, dbValues, 4*sizeof(double), 0, (struct sockaddr *)&aws , sizeof(aws)) < 0){
       perror("failed to send\n");
       return -1;

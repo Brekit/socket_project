@@ -114,6 +114,7 @@ int main(){
   // ============ Listen from client and send to server A,B,C ============ //
   int *x;
   double linkAVals[5];
+  double linkBVals[5];
 
 
   if (listen(cli_soc,6) < 0)
@@ -129,17 +130,46 @@ int main(){
   x = recieveClient(new_socket);
 
   sendData(a_soc, serverA, x);
-  //sendData(b_soc, serverB, x);
+  sendData(b_soc, serverB, x);
   //sendData(c_soc, serverC, x);
 
-printf("waiting to revieve...\n");
-
 if (recvfrom(a_soc,linkAVals, 4*sizeof(double),0,(struct sockaddr *)&serverA,(socklen_t*)&addrlen2 ) < 0)
-{
-  perror("Couldnt recieve from server A");
-  return -1;
-} else {
-printf("recieved <%.2f>\n", linkAVals[0]);
-}
+  {
+    perror("Couldnt recieve from server A");
+    return -1;
+  }
+else
+  {
+    if(int(linkAVals[0])==0)
+    {
+      //printf("link A val: %0f\n", linkAVals[0]);
+      printf("The AWS recieved <0> matches from Backnend-server <A> using UDP port <21687>\n");
+    }
+    else
+    {
+      //printf("link A val: %0f\n", linkAVals[0]);
+      printf("The AWS recieved <1> matches from Backend-server < A > using UDP port <21687>\n");
+    }
+  }
+
+  if (recvfrom(b_soc,linkBVals, 4*sizeof(double),0,(struct sockaddr *)&serverB,(socklen_t*)&addrlen2 ) < 0)
+    {
+      perror("Couldnt recieve from server A");
+      return -1;
+    }
+  else
+    {
+      if(int(linkBVals[0])==0)
+      {
+        //printf("link B val: %0f\n", linkBVals[0]);
+        printf("The AWS recieved <0> matches from Backnend-server <B> using UDP port <22687>\n");
+      }
+      else
+      {
+        //printf("link A val: %0f\n", linkBVals[0]);
+        printf("The AWS recieved <1> matches from Backend-server < B > using UDP port <22687>\n");
+      }
+    }
+
 
 }
