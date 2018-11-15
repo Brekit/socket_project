@@ -43,22 +43,22 @@ int main(){
   if(!databaseA.is_open()) std::cout << "Error: Couldn't open database" << std::endl;
   std::string link;
 
-    std::string line, field;
+  std::string line, field;
 
-    std::vector< std::vector<std::string> > dbA;  // the 2D array
-    std::vector<std::string> dbARows;                // array of values for one line only
+  std::vector< std::vector<std::string> > dbA;  // the 2D array
+  std::vector<std::string> dbARows;                // array of values for one line only
 
-    while (getline(databaseA,line))    // get next line in file
+  while (getline(databaseA,line))    // get next line in file
+  {
+    dbARows.clear();
+    std::stringstream ss(line);
+    while (getline(ss,field,','))  // break line into comma delimitted fields
     {
-        dbARows.clear();
-        std::stringstream ss(line);
-        while (getline(ss,field,','))  // break line into comma delimitted fields
-        {
-            dbARows.push_back(field);  // add each field to the 1D array
-        }
-        dbA.push_back(dbARows);  // add the 1D array to the 2D array
+      dbARows.push_back(field);  // add each field to the 1D array
     }
-      databaseA.close();
+    dbA.push_back(dbARows);  // add the 1D array to the 2D array
+  }
+  databaseA.close();
   if (bind(awsSoc, (struct sockaddr *)&aws, sizeof aws) < 0)
   {
     perror("\nbind to socket failed");
@@ -66,16 +66,16 @@ int main(){
   }
   int new_socket = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)&addrlen);
   while(true){
-  recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&aws, (socklen_t *)&addrlen);
-  //recv(awsSoc,Vals, 3*sizeof(int),0);
-  //close(awsSoc);
-  printf("The Server A received input:%d\n", Vals[0]);
+    recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&aws, (socklen_t *)&addrlen);
+    //recv(awsSoc,Vals, 3*sizeof(int),0);
+    //close(awsSoc);
+    printf("The Server A received input <%d>\n", Vals[0]);
 
- std::stringstream x;
- x << Vals[0];
- std::string numberAsString(x.str());
+    std::stringstream x;
+    x << Vals[0];
+    std::string numberAsString(x.str());
 
- std::cout << "Checking for entry in db " << numberAsString << std::endl;
+    std::cout << "Checking for entry in db " << numberAsString << std::endl;
 
 
     // print out what was read in
@@ -91,18 +91,29 @@ int main(){
           const char * c = dbA[i][k].c_str();
           dbValues[k] =  strtod(c, &point);
           std::cout << dbValues[k] << "*\n";
-          }
+        }
       }
     }
 
-    if (sendto(awsSoc, dbValues, 5*sizeof(double), 0, (struct sockaddr *)&aws , sizeof(aws)) < 0){
-      perror("failed to send\n");
-      return -1;
-    } else {
-      printf("Sending link=%.2f aws\n", dbValues[0]);
+    if (int(dbValues[0])!=0)
+    {
+      printf("The server B has found < 1 > matches\n");
+    }
+    else
+    {
+      printf("The server B has found < 0 > matches\n");
+    }
+
+
+  if (sendto(awsSoc, dbValues, 5*sizeof(double), 0, (struct sockaddr *)&aws , sizeof(aws)) < 0)
+  {
+    perror("failed to send\n");
+    return -1;
+  }
+  else {
+    printf("The server A finished sending the ouput to AWS\n");
   }
 }
-
 
 
 }

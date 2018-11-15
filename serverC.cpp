@@ -31,8 +31,8 @@ double dBmtoWatts(double dbm){
 }
 
 struct FusedArray{
-  int clientInput[3]={0};
-  double dbValues[5]={0};
+  int clientInput[3];
+  double dbValues[5];
 };
 
 struct ComputeTheseValues{
@@ -49,20 +49,6 @@ struct ComputeTheseValues Compute(double bandwith, double signalIndBm, double no
   computed.E2E = computed.dProp+computed.dTrans;
   return computed;
 }
-
-
-
-/*
-double Compute(double bandwith, double signalIndBm, double noiseIndBm)
-{
-  //double ChannelCap, signalW, noiseW;
-  signalW = dBmtoWatts(signalIndBm);
-  noiseW = dBmtoWatts(noiseIndBm);
-  ChannelCap = bandwith * (log2 (1+(signalW/noiseW));
-
-  return ChannelCap;
-}
-*/
 
 int main(){
   printf("Server C is up and running\n");
@@ -99,15 +85,21 @@ int main(){
   }
   //recv(awsSoc,Vals, 3*sizeof(int),0);
   //close(awsSoc);
-  printf("The Server A received input:%d, %.2f\n", recievedSample.clientInput[0], recievedSample.dbValues[3]);
+  printf("The Server C received link information of <%d>, file size <%d>, and signal power <%d>\n", recievedSample.clientInput[0], recievedSample.clientInput[1], recievedSample.clientInput[2]);
           //Compute(double bandwith, double signalIndBm, double noiseIndBm, double distance, double speed, int size ){
   struct ComputeTheseValues Testing = Compute(recievedSample.dbValues[1], recievedSample.clientInput[2], recievedSample.dbValues[4], recievedSample.dbValues[2], recievedSample.dbValues[3], recievedSample.clientInput[1]);
+  printf("The Server C finished calculation for link <%d>\n", recievedSample.clientInput[0]);
 
-  printf("Link: %.2f\n", Testing.ChannelCap);
-  printf("size: %d\n", recievedSample.clientInput[1]);
-  printf("dProp: %.2f\n", Testing.dProp);
-  printf("dTrans: %.2f\n", Testing.dTrans);
+  //sendto(c_soc, (char*)&Sample, sizeof(Sample), 0, (struct sockaddr *)&serverC , sizeof(serverC))
 
+  if (sendto(awsSoc,&Testing, sizeof(Testing),0, (struct sockaddr*)&aws, sizeof(aws)) < 0)
+  {
+    perror("Recieve failed");
+    return -1;
+  }
+  else {
+
+  }
 
 }
 }

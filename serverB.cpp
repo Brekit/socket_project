@@ -25,7 +25,7 @@
 #define AWS_SERVB 22687
 
 int main(){
-  printf("Server B is up and running\n");
+  printf("The Server B is up and running using UDP on port <22687>\n");
   int awsSoc;
   struct sockaddr_in aws;
   //struct sockaddr_storage src_addr;
@@ -50,13 +50,13 @@ int main(){
   int new_socket = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)&addrlen);
   //recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&src_addr,&src_addr_len);
   recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&aws, (socklen_t *)&addrlen);
-  printf("The Server B received input:%d\n", Vals[0]);
+  printf("The Server B received input <%d>\n", Vals[0]);
 
   std::stringstream x;
   x << Vals[0];
   std::string numberAsString(x.str());
 
-  std::cout << "Checking for entry in db " << numberAsString << std::endl;
+  //std::cout << "Checking for entry in db " << numberAsString << std::endl;
 
    std::ifstream databaseB ("database_b.csv");
    if(!databaseB.is_open()) std::cout << "Error: Couldn't open database" << std::endl;
@@ -77,6 +77,7 @@ int main(){
          }
          dbB.push_back(dbBRows);  // add the 1D array to the 2D array
      }
+        databaseB.close();
 
      // print out what was read in
      double dbValues[4];
@@ -95,13 +96,25 @@ int main(){
        }
      }
 
-     if (sendto(awsSoc, dbValues, 5*sizeof(double), 0, (struct sockaddr *)&aws , sizeof(aws)) < 0){
-       perror("failed to send\n");
-       return -1;
-     } else {
-       printf("Sending link=%.2f aws\n", dbValues[0]);
+     if (int(dbValues[0])!=0)
+     {
+       printf("The server B has found < 1 > matches\n");
+     }
+     else
+     {
+       printf("The server B has found < 0 > matches\n");
+     }
+
+
+   if (sendto(awsSoc, dbValues, 5*sizeof(double), 0, (struct sockaddr *)&aws , sizeof(aws)) < 0)
+   {
+     perror("failed to send\n");
+     return -1;
+   }
+   else {
+     printf("The server A finished sending the ouput to AWS\n");
    }
 
-   databaseB.close();
+
 
 }
