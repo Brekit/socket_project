@@ -19,16 +19,53 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <iostream>
+#include <math.h>
 #define AWS_SERVC 23687
+
+
+double dBmtoWatts(double dbm){
+  double x = dbm/10
+  Watts = pow(10,x)/1000;
+  return Watts;
+}
 
 struct FusedArray{
   int clientInput[3]={0};
   double dbValues[5]={0};
 };
 
+struct ComputeTheseValues{
+  double ChannelCap, signalW, noiseW, dProp, dTrans, E2E;
+};
+
+struct ComputeTheseValues Compute(double bandwith, double signalIndBm, double noiseIndBm, int distance, double speed, int size ){
+  struct ComputeTheseValues computed;
+  computed.signalW = dBmtoWatts(signalIndBm);
+  computed.noiseW = dBmtoWatts(noiseIndBm);
+  computed.ChannelCap = bandwith * (log2 (1+(signalW/noiseW));
+  computed.dProp = (distance*1000)/(speed*10e7);
+  computed.dTrans = (size)/computed.ChannelCap;
+  computed.E2E = dProp+dTrans;
+}
+
+
+
+/*
+double Compute(double bandwith, double signalIndBm, double noiseIndBm)
+{
+  //double ChannelCap, signalW, noiseW;
+  signalW = dBmtoWatts(signalIndBm);
+  noiseW = dBmtoWatts(noiseIndBm);
+  ChannelCap = bandwith * (log2 (1+(signalW/noiseW));
+
+  return ChannelCap;
+}
+*/
+
 int main(){
   printf("Server C is up and running\n");
   int awsSoc;
+  double linkRate;
   FusedArray recievedSample;
   struct sockaddr_in aws;
   //struct sockaddr_storage src_addr;
@@ -61,6 +98,12 @@ int main(){
   //recv(awsSoc,Vals, 3*sizeof(int),0);
   //close(awsSoc);
   printf("The Server A received input:%d, %.2f\n", recievedSample.clientInput[0], recievedSample.dbValues[3]);
+
+  linkRate = Compute(recievedSample.dbValues[1], recievedSample.clientInput[2], recievedSample.dbValues[4]);
+
+
+
+
 
 
 
