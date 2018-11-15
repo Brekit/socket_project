@@ -38,13 +38,13 @@ struct ComputeTheseValues{
   double ChannelCap, signalW, noiseW, dProp, dTrans, E2E;
 };
 
-struct ComputeTheseValues Compute(double bandwith, double signalIndBm, double noiseIndBm, int distance, double speed, int size ){
+struct ComputeTheseValues Compute(double bandwith, double signalIndBm, double noiseIndBm, double distance, double speed, int size ){
   struct ComputeTheseValues computed;
   computed.signalW = dBmtoWatts(signalIndBm);
   computed.noiseW = dBmtoWatts(noiseIndBm);
-  computed.ChannelCap = bandwith * (log2 (1+(signalW/noiseW));
+  computed.ChannelCap = (bandwith*10e6) * (log2 (1+(signalW/noiseW));
   computed.dProp = (distance*1000)/(speed*10e7);
-  computed.dTrans = (size)/computed.ChannelCap;
+  computed.dTrans = size/computed.ChannelCap;
   computed.E2E = dProp+dTrans;
 }
 
@@ -99,7 +99,7 @@ int main(){
   //close(awsSoc);
   printf("The Server A received input:%d, %.2f\n", recievedSample.clientInput[0], recievedSample.dbValues[3]);
 
-  linkRate = Compute(recievedSample.dbValues[1], recievedSample.clientInput[2], recievedSample.dbValues[4]);
+  struct ComputeTheseValues Testing = Compute(recievedSample.dbValues[1], recievedSample.clientInput[2], recievedSample.dbValues[4], recievedSample.dbValues[2], recievedSample.dbValues[3], recievedSample.clientInput[1]);
 
 
 
