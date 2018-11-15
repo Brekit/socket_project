@@ -161,14 +161,14 @@ int main(){
   serverC.sin_addr.s_addr = inet_addr("127.0.0.1");
   serverC.sin_port = htons(UDPport);
 
-  if((mon_soc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
+  if((mon_soc = socket(AF_INET, SOCK_STREAM,0)) == 0)
   {
     printf("\nerror, Monitor socket cretion failed");
     return -1;
   }
   monitor.sin_family = AF_INET;
   monitor.sin_addr.s_addr = inet_addr("127.0.0.1");
-  monitor.sin_port = htons(clientTCP);
+  monitor.sin_port = htons(MonitorTCP);
 
   // ============ Let's bind ============ //
   if (bind(cli_soc,  (struct sockaddr *)&client, sizeof client) < 0)
@@ -189,12 +189,12 @@ int main(){
 
   if (listen(cli_soc,6) < 0)
   {
-    perror("\nlisten failed");
+    perror("\nlisten failed client");
     return -1;
   }
   if (listen(mon_soc,6) < 0)
   {
-    perror("\nlisten failed");
+    perror("\nlisten failed monitor");
     return -1;
   }
 
@@ -209,6 +209,11 @@ int main(){
   recieveUDP(a_soc, &serverA, addrlen);
   sendData(b_soc, serverB, x);
   recieveUDP(b_soc, &serverB, addrlen2);
+
+  char *hello = "Hello from server";
+
+  send(mon_soc , hello , strlen(hello) , 0 );
+
 
 
 

@@ -49,6 +49,13 @@ int main(int argc, char* argv[]){
     return -1;
   }
 
+  if (send(awsSoc, (char*)Vals, 3*sizeof(int), 0) < 0){
+    perror("failed to send\n");
+    return -1;
+  } else {
+    printf("The client sent link=%d, size=%d, power=%d to AWS.\n", link, size, power);
+  }
+
 
 
   /*
