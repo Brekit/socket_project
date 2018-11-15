@@ -24,7 +24,8 @@
 
 
 double dBmtoWatts(double dbm){
-  double x = dbm/10
+  double Watts;
+  double x = dbm/10;
   Watts = pow(10,x)/1000;
   return Watts;
 }
@@ -38,14 +39,15 @@ struct ComputeTheseValues{
   double ChannelCap, signalW, noiseW, dProp, dTrans, E2E;
 };
 
-struct ComputeTheseValues Compute(double bandwith, double signalIndBm, double noiseIndBm, double distance, double speed, int size ){
+struct ComputeTheseValues Compute(double bandwith, double signalIndBm, double noiseIndBm, double distance, double speed, double size ){
   struct ComputeTheseValues computed;
   computed.signalW = dBmtoWatts(signalIndBm);
   computed.noiseW = dBmtoWatts(noiseIndBm);
-  computed.ChannelCap = (bandwith*10e6) * (log2 (1+(signalW/noiseW));
+  computed.ChannelCap = (bandwith*10e6) * (log2 (1+(computed.signalW/computed.noiseW)));
   computed.dProp = (distance*1000)/(speed*10e7);
   computed.dTrans = size/computed.ChannelCap;
-  computed.E2E = dProp+dTrans;
+  computed.E2E = computed.dProp+computed.dTrans;
+  return computed;
 }
 
 
@@ -98,13 +100,13 @@ int main(){
   //recv(awsSoc,Vals, 3*sizeof(int),0);
   //close(awsSoc);
   printf("The Server A received input:%d, %.2f\n", recievedSample.clientInput[0], recievedSample.dbValues[3]);
-
+          //Compute(double bandwith, double signalIndBm, double noiseIndBm, double distance, double speed, int size ){
   struct ComputeTheseValues Testing = Compute(recievedSample.dbValues[1], recievedSample.clientInput[2], recievedSample.dbValues[4], recievedSample.dbValues[2], recievedSample.dbValues[3], recievedSample.clientInput[1]);
 
-
-
-
-
+  printf("Link: %.2f\n", Testing.ChannelCap);
+  printf("size: %d\n", recievedSample.clientInput[1]);
+  printf("dProp: %.8f\n", Testing.dProp);
+  printf("dTrans: %.8f\n", Testing.dTrans);
 
 
 }
