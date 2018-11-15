@@ -23,11 +23,12 @@
 #include <vector>
 
 #define AWS_SERVA 21687
+#define UDPAWS 24687
 
 int main(){
   printf("Server A is up and running\n");
   int awsSoc;
-  struct sockaddr_in aws;
+  struct sockaddr_in aws, aws2;
   int addrlen = sizeof(int);
   int Vals[3];
   if((awsSoc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
@@ -38,6 +39,11 @@ int main(){
   aws.sin_family = AF_INET;
   aws.sin_addr.s_addr = inet_addr("127.0.0.1");
   aws.sin_port = htons(AWS_SERVA);
+
+  aws2.sin_family = AF_INET;
+  aws2.sin_addr.s_addr = inet_addr("127.0.0.1");
+  aws2.sin_port = htons(UDPAWS);
+
 
   std::ifstream databaseA ("database_a.csv");
   if(!databaseA.is_open()) std::cout << "Error: Couldn't open database" << std::endl;
@@ -64,8 +70,8 @@ int main(){
     perror("\nbind to socket failed");
     return -1;
   }
-  int new_socket = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)&addrlen);
-  while(true){
+  //int new_socket = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)&addrlen);
+  //while(true){
     recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&aws, (socklen_t *)&addrlen);
     //recv(awsSoc,Vals, 3*sizeof(int),0);
     //close(awsSoc);
@@ -97,15 +103,15 @@ int main(){
 
     if (int(dbValues[0])!=0)
     {
-      printf("The server B has found < 1 > matches\n");
+      printf("The server A has found < 1 > matches\n");
     }
     else
     {
-      printf("The server B has found < 0 > matches\n");
+      printf("The server A has found < 0 > matches\n");
     }
 
 
-  if (sendto(awsSoc, dbValues, 5*sizeof(double), 0, (struct sockaddr *)&aws , sizeof(aws)) < 0)
+  if (sendto(awsSoc, dbValues, 5*sizeof(double), 0, (struct sockaddr *)&aws2 , sizeof(aws2)) < 0)
   {
     perror("failed to send\n");
     return -1;
@@ -113,7 +119,7 @@ int main(){
   else {
     printf("The server A finished sending the ouput to AWS\n");
   }
-}
+//}
 
 
 }

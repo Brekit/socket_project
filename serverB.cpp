@@ -22,12 +22,14 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+
 #define AWS_SERVB 22687
+#define UDPAWS 24687
 
 int main(){
   printf("The Server B is up and running using UDP on port <22687>\n");
   int awsSoc;
-  struct sockaddr_in aws;
+  struct sockaddr_in aws, aws2;
   //struct sockaddr_storage src_addr;
   //socklen_t src_addr_len=sizeof(src_addr);
   int addrlen = sizeof(int);
@@ -42,6 +44,9 @@ int main(){
   aws.sin_addr.s_addr = inet_addr("127.0.0.1");
   aws.sin_port = htons(AWS_SERVB);
 
+  aws2.sin_family = AF_INET;
+  aws2.sin_addr.s_addr = inet_addr("127.0.0.1");
+  aws2.sin_port = htons(UDPAWS);
   if (bind(awsSoc, (struct sockaddr *)&aws, sizeof aws) < 0)
   {
     perror("\nbind to socket failed");
@@ -106,7 +111,7 @@ int main(){
      }
 
 
-   if (sendto(awsSoc, dbValues, 5*sizeof(double), 0, (struct sockaddr *)&aws , sizeof(aws)) < 0)
+   if (sendto(awsSoc, dbValues, 5*sizeof(double), 0, (struct sockaddr *)&aws2 , sizeof(aws2)) < 0)
    {
      perror("failed to send\n");
      return -1;
