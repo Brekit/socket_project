@@ -29,7 +29,6 @@ int main(int argc, char* argv[]){
    //struct sockaddr_in address;
   int awsSoc = 0, valread;
   struct sockaddr_in aws;
-  const char *msg = "\nClient:Hey, its the client. was good";
   if ((awsSoc = socket(AF_INET, SOCK_STREAM, 0)) < 0)
   {
     printf("Socket creation error\n");
@@ -48,13 +47,9 @@ int main(int argc, char* argv[]){
   {
     perror("Connection Failed");
     return -1;
- }
-  if (send(awsSoc, (char*)Vals, 3*sizeof(int), 0) < 0){
-    perror("failed to send\n");
-    return -1;
-  } else {
-    printf("The client sent link=%d, size=%d, power=%d to AWS.\n", link, size, power);
   }
+
+
 
   /*
   valread=read(awsSoc , buffer, 2048);

@@ -17,16 +17,81 @@
 #include <iostream>
 
 struct FusedArray{
-  int clientInput[3]={0};
-  double dbValues[5]={0};
+  int clientInput[3];
+  double dbValues[5];
 };
 
-#define servAPort 21687
-#define servBPort 22687
-#define servCPort 23687
+//#define servAPort 21687
+//#define servBPort 22687
+//#define servCPort 23687
 #define UDPport 24687
 #define clientTCP 25687
 #define MonitorTCP 26687
+
+double * recieveUDP(int socket, struct sockaddr_in *server, int address_length){
+  static double linkVals[5];
+  //double linkBVals[5];
+if (recvfrom(socket,linkVals, 5*sizeof(double),0,(struct sockaddr *)&server,(socklen_t*)&address_length) < 0)
+  {
+    perror("Couldnt recieve from server A");
+    //return -1.00;
+  }
+else
+  {
+    if(int(linkVals[0])==0)
+    {
+      //printf("link A val: %0f\n", linkAVals[0]);
+      printf("The AWS recieved <0> matches from Backend-server <A> using UDP port <21687>\n");
+    }
+    else
+    {
+      //printf("link A val: %0f\n", linkAVals[0]);
+      printf("The AWS recieved <1> matches from Backend-server <A> using UDP port <21687>\n");
+      printf("sending to C (a)\n");
+      //sendData(c_soc, serverC, x);
+      //sendData(c_soc, serverC, linkAVals);
+      //sendData(c_soc, serverC, linkAVals);
+    }
+  }
+  close(socket);
+  return linkVals;
+}
+
+/*
+  if (recvfrom(b_soc,linkBVals, 5*sizeof(double),0,(struct sockaddr *)&serverB,(socklen_t*)&addrlen2 ) < 0)
+    {
+      perror("Couldnt recieve from server A");
+      return -1;
+    }
+  else
+    {
+      if(int(linkBVals[0])==0)
+      {
+        //printf("link B val: %0f\n", linkBVals[0]);
+        printf("The AWS recieved <0> matches from Backnend-server <B> using UDP port <22687>\n");
+      }
+      else
+      {
+        //printf("link A val: %0f\n", linkBVals[0]);
+
+        printf("The AWS recieved <1> matches from Backend-server < B > using UDP port <22687>\n");
+        printf("sending to C (b)\n");
+        for(int i =0; i < 4; i++){
+          Sample.clientInput[i] = x[i];
+        }
+        for(int j=0; j < 5; j++){
+          Sample.dbValues[j] = linkBVals[j];
+        }
+        if (sendto(c_soc, (char*)&Sample, sizeof(Sample), 0, (struct sockaddr *)&serverC , sizeof(serverC)) < 0)
+        {
+          perror("Send to server C failed");
+          return -1;
+        }
+
+      }
+    }
+*/
+
 
 int sendData(int socket, struct sockaddr_in server, int *Data){
   if (sendto(socket, (char*)Data, 3*sizeof(int), 0, (struct sockaddr *)&server , sizeof(server)) < 0)
@@ -76,7 +141,7 @@ int main(){
   }
   serverA.sin_family = AF_INET;
   serverA.sin_addr.s_addr = inet_addr("127.0.0.1");
-  serverA.sin_port = htons(servAPort);
+  serverA.sin_port = htons(UDPport);
 
   if((b_soc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
   {
@@ -85,7 +150,7 @@ int main(){
   }
   serverB.sin_family = AF_INET;
   serverB.sin_addr.s_addr = inet_addr("127.0.0.1");
-  serverB.sin_port = htons(servBPort);
+  serverB.sin_port = htons(UDPport);
 
   if((c_soc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
   {
@@ -94,7 +159,7 @@ int main(){
   }
   serverC.sin_family = AF_INET;
   serverC.sin_addr.s_addr = inet_addr("127.0.0.1");
-  serverC.sin_port = htons(servCPort);
+  serverC.sin_port = htons(UDPport);
 
   if((mon_soc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
   {
@@ -119,8 +184,6 @@ int main(){
 
   // ============ Listen from client and send to server A,B,C ============ //
   int *x;
-  double linkAVals[5];
-  double linkBVals[5];
 
 
 
@@ -129,6 +192,12 @@ int main(){
     perror("\nlisten failed");
     return -1;
   }
+  if (listen(mon_soc,6) < 0)
+  {
+    perror("\nlisten failed");
+    return -1;
+  }
+
 
   int new_socket = accept(cli_soc, (struct sockaddr *)&client,(socklen_t*)&addrlen);
 
@@ -137,65 +206,12 @@ int main(){
   x = recieveClient(new_socket);
 
   sendData(a_soc, serverA, x);
+  recieveUDP(a_soc, &serverA, addrlen);
   sendData(b_soc, serverB, x);
+  recieveUDP(b_soc, &serverB, addrlen2);
 
 
-if (recvfrom(a_soc,linkAVals, 5*sizeof(double),0,(struct sockaddr *)&serverA,(socklen_t*)&addrlen2 ) < 0)
-  {
-    perror("Couldnt recieve from server A");
-    return -1;
-  }
-else
-  {
-    if(int(linkAVals[0])==0)
-    {
-      //printf("link A val: %0f\n", linkAVals[0]);
-      printf("The AWS recieved <0> matches from Backend-server <A> using UDP port <21687>\n");
-    }
-    else
-    {
-      //printf("link A val: %0f\n", linkAVals[0]);
-      printf("The AWS recieved <1> matches from Backend-server <A> using UDP port <21687>\n");
-      printf("sending to C (a)\n");
-      //sendData(c_soc, serverC, x);
-      //sendData(c_soc, serverC, linkAVals);
-      //sendData(c_soc, serverC, linkAVals);
 
-    }
-  }
-
-  if (recvfrom(b_soc,linkBVals, 5*sizeof(double),0,(struct sockaddr *)&serverB,(socklen_t*)&addrlen2 ) < 0)
-    {
-      perror("Couldnt recieve from server A");
-      return -1;
-    }
-  else
-    {
-      if(int(linkBVals[0])==0)
-      {
-        //printf("link B val: %0f\n", linkBVals[0]);
-        printf("The AWS recieved <0> matches from Backnend-server <B> using UDP port <22687>\n");
-      }
-      else
-      {
-        //printf("link A val: %0f\n", linkBVals[0]);
-
-        printf("The AWS recieved <1> matches from Backend-server < B > using UDP port <22687>\n");
-        printf("sending to C (b)\n");
-        for(int i =0; i < 4; i++){
-          Sample.clientInput[i] = x[i];
-        }
-        for(int j=0; j < 5; j++){
-          Sample.dbValues[j] = linkBVals[j];
-        }
-        if (sendto(c_soc, (char*)&Sample, sizeof(Sample), 0, (struct sockaddr *)&serverC , sizeof(serverC)) < 0)
-        {
-          perror("Send to server C failed");
-          return -1;
-        }
-
-      }
-    }
 
     // if (((int(linkAVals[0])==0) && (int(linkBVals[0])==0))
     // {
