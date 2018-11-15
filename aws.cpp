@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
-#include <string.h>
 #include <netdb.h>
 #include <sys/types.h>
 #include <netinet/in.h>
@@ -29,9 +28,9 @@ struct FusedArray{
 #define clientTCP 25687
 #define MonitorTCP 26687
 
-double * recieveUDP(int socket, struct sockaddr_in *server, int address_length, const std::string& serverString ){
+double * recieveUDP(int socket, struct sockaddr_in *server, int address_length, char Val){
   static double linkVals[5];
-  //double linkBVals[5];
+  //double linkBVals[5];c
 if (recvfrom(socket,linkVals, 5*sizeof(double),0,(struct sockaddr *)&server,(socklen_t*)&address_length) < 0)
   {
     perror("Couldnt recieve from server A");
@@ -42,13 +41,15 @@ else
     if(int(linkVals[0])==0)
     {
       //printf("link A val: %0f\n", linkAVals[0]);
-      printf("The AWS recieved <0> matches from Backend-server <%s> using UDP port <24687>\n", serverString.c_str());
+      //printf("The AWS recieved <0> matches from Backend-server <%s> using UDP port <24687>\n", serverString.c_str());
+      std::cout << "The AWS recieved <0> matches from Backend-server <" << Val << "> using UDP port <24687>" << std::endl;
     }
     else
     {
       //printf("link A val: %0f\n", linkAVals[0]);
-      printf("The AWS recieved <1> matches from Backend-server <%s> using UDP port <24687>\n", serverString.c_str());
-      printf("sending to C (a)\n");
+      //printf("The AWS recieved <1> matches from Backend-server <%s> using UDP port <24687>\n", serverString.c_str());
+      //printf("sending to C (a)\n");
+      std::cout << "The AWS recieved <1> matches from Backend-server <" << Val << "> using UDP port <24687>" << std::endl;
       //sendData(c_soc, serverC, x);
       //sendData(c_soc, serverC, linkAVals);
       //sendData(c_soc, serverC, linkAVals);
@@ -101,7 +102,8 @@ int sendData(int socket, struct sockaddr_in server, int *Data){
     return -1;
   }
   else {
-    printf("AWS submitted <%d> to servers\n",Data[0]);
+    std::cout << "AWS submitted <" << Data[0] << "> to servers" <<std::endl;
+    return 0;
   }
 }
 
@@ -227,10 +229,11 @@ int main(){
   // else {
   //   printf("AWS submitted <%d> to servers\n",x[0]);
   // }
+
   sendData(awsAsClient, serverA, x);
-  recieveUDP(awsAsClient, &serverA, servA_len, "A");
+  recieveUDP(awsAsClient, &serverA, servA_len, 'A');
   sendData(awsAsClient, serverB, x);
-  recieveUDP(awsAsClient, &serverB, servB_len, "B");
+  recieveUDP(awsAsClient, &serverB, servB_len, 'B');
   // double linkVals[5];
   // if (recvfrom(awsAsClient,linkVals, 5*sizeof(double),0,(struct sockaddr *)&serverA,(socklen_t*)&servA_len ) < 0)
   //   {
