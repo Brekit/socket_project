@@ -44,8 +44,8 @@ struct ComputeTheseValues Compute(double bandwith, double signalIndBm, double no
   computed.signalW = dBmtoWatts(signalIndBm);
   computed.noiseW = dBmtoWatts(noiseIndBm);
   computed.ChannelCap = (bandwith*10e6) * (log2 (1+(computed.signalW/computed.noiseW)));
-  computed.dProp = (distance*1000)/(speed*10e7);
-  computed.dTrans = size/computed.ChannelCap;
+  computed.dProp = (distance*1000)/(speed*10e7)/10e-6;
+  computed.dTrans = (size/computed.ChannelCap)/10e-6;
   computed.E2E = computed.dProp+computed.dTrans;
   return computed;
 }
@@ -105,8 +105,8 @@ int main(){
 
   printf("Link: %.2f\n", Testing.ChannelCap);
   printf("size: %d\n", recievedSample.clientInput[1]);
-  printf("dProp: %.8f\n", Testing.dProp);
-  printf("dTrans: %.8f\n", Testing.dTrans);
+  printf("dProp: %.2f\n", Testing.dProp);
+  printf("dTrans: %.2f\n", Testing.dTrans);
 
 
 }
