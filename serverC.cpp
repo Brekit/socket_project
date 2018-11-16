@@ -104,7 +104,7 @@ int main(){
     return -1;
   }
   else {
-
+    printf("The Server C finished sending the output to AWS\n");
   }
 
 }
