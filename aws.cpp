@@ -141,35 +141,35 @@ int *recieveClient(int socket){
   return Values;
 }
 
-void SendAToMonitor(int socket, int *array1, double delayTrans, double delayProp, double E2EDelay){
+// void SendAToMonitor(int socket, int *array1, double delayTrans, double delayProp, double E2EDelay){
+// double FusedDataSet[6];
+// for (int i=0; i < 4; i++){
+// FusedDataSet[i] = array1[i];
+// }
+// FusedDataSet[4] = delayTrans;
+// FusedDataSet[5] = delayProp;
+// FusedDataSet[6] = E2EDelay;
+//
+// if (send(socket, FusedDataSet, sizeof(FusedDataSet),0) < 0)
+//   {
+//     perror("Couldnt recieve from server A");
+//   }
+// else
+//   {
+//       std::cout << "The AWS sent to monitor" << std::endl;
+//   }
+//   //close(socket);
+//
+// }
+
+void SendToMonitor(int socket, int *array1, double delayTrans, double delayProp, double E2EDelay){
 double FusedDataSet[6];
-for (int i=0; i < 4; i++){
+for (int i=0; i < 3; i++){
 FusedDataSet[i] = array1[i];
 }
-FusedDataSet[4] = delayTrans;
-FusedDataSet[5] = delayProp;
-FusedDataSet[6] = E2EDelay;
-
-if (send(socket, FusedDataSet, sizeof(FusedDataSet),0) < 0)
-  {
-    perror("Couldnt recieve from server A");
-  }
-else
-  {
-      std::cout << "The AWS sent to monitor" << std::endl;
-  }
-  //close(socket);
-
-}
-
-void SendBToMonitor(int socket, int *array1, double delayTrans, double delayProp, double E2EDelay){
-double FusedDataSet[6];
-for (int i=0; i < 4; i++){
-FusedDataSet[i] = array1[i];
-}
-FusedDataSet[4] = delayTrans;
-FusedDataSet[5] = delayProp;
-FusedDataSet[6] = E2EDelay;
+FusedDataSet[3] = delayTrans;
+FusedDataSet[4] = delayProp;
+FusedDataSet[5] = E2EDelay;
 
 if (send(socket, FusedDataSet, sizeof(FusedDataSet),0) < 0)
   {
@@ -221,29 +221,14 @@ int main(){
   clientAws.sin_port = htons(UDPport);
 
 
-  // if((a_soc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
-  // {
-  //   printf("\nerror, Server A socket creation failed");
-  //   return -1;
-  // }
   serverA.sin_family = AF_INET;
   serverA.sin_addr.s_addr = inet_addr("127.0.0.1");
   serverA.sin_port = htons(servAPort);
 
-  // if((b_soc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
-  // {
-  //   printf("\nerror, Server B socket creation failed");
-  //   return -1;
-  // }
   serverB.sin_family = AF_INET;
   serverB.sin_addr.s_addr = inet_addr("127.0.0.1");
   serverB.sin_port = htons(servBPort);
 
-  // if((c_soc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
-  // {
-  //   printf("\nerror, Server C socket creation failed");
-  //   return -1;
-  // }
   serverC.sin_family = AF_INET;
   serverC.sin_addr.s_addr = inet_addr("127.0.0.1");
   serverC.sin_port = htons(servCPort);
@@ -317,9 +302,8 @@ int main(){
     SendForCompute(RecievedInputsFromClient, ResultsFromA, awsAsClient, serverC);
     struct CalculatedValuesFromC CalculatedDatasetA = recieveComputed(awsAsClient, &serverC, servC_len);
     //std::cout << "The AWSA sent delay=<" << std::setprecision(2) << CalculatedDatasetA.E2E << ">ms to the client using TCP over port <25687>" << std::endl;
-    //SendToClient
     //std::cout << "The AWSA sent delay=<" << std::setprecision(2) << CalculatedDatasetA.dProp << ">ms to the client using TCP over port <25687>" << std::endl;
-    SendAToMonitor(mon_soc, RecievedInputsFromClient,CalculatedDatasetA.dTrans,CalculatedDatasetA.dProp,CalculatedDatasetA.E2E );
+    SendToMonitor(mon_soc, RecievedInputsFromClient,CalculatedDatasetA.dTrans,CalculatedDatasetA.dProp,CalculatedDatasetA.E2E );
 
   }
 
@@ -327,9 +311,8 @@ int main(){
     SendForCompute(RecievedInputsFromClient, ResultsFromB, awsAsClient, serverC);
     struct CalculatedValuesFromC CalculatedDatasetB = recieveComputed(awsAsClient, &serverC, servC_len);
     std::cout << "The AWSB sent delay=<" << std::setprecision(2) << CalculatedDatasetB.E2E << ">ms to the client using TCP over port <25687>" << std::endl;
-    SendBToMonitor(mon_soc, RecievedInputsFromClient,CalculatedDatasetB.dTrans,CalculatedDatasetB.dProp,CalculatedDatasetB.E2E );
+    SendToMonitor(mon_soc, RecievedInputsFromClient,CalculatedDatasetB.dTrans,CalculatedDatasetB.dProp,CalculatedDatasetB.E2E );
     //sendData(mon_soc, monitor, RecievedInputsFcromClient);
-    //SendToClient
     //SendToMonitor
   }
 
