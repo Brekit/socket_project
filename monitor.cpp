@@ -37,21 +37,13 @@ int main(){
   aws.sin_addr.s_addr = inet_addr("127.0.0.1");
   aws.sin_port = htons(AWSPORT);
 
-  if (bind(awsSoc,  (struct sockaddr *)&aws, sizeof aws) < 0)
+  if (connect(awsSoc, (struct sockaddr *)&aws, sizeof(aws)) < 0)
   {
-    perror("\nbind to monitor failed");
+    perror("Connection Failed");
     return -1;
   }
 
-  if (listen(awsSoc,6) < 0)
-  {
-    perror("\nlisten failed monitor");
-    return -1;
-  }
-
-int var = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)& addrlen);
-
-  if (recv(var, (void *) &RecievedData, sizeof(RecievedData),0) < 0)
+  if (recv(awsSoc, (void *) &RecievedData, sizeof(RecievedData),0) < 0)
   {
     perror("recieve failed");
     return -1;

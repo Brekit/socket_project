@@ -260,11 +260,22 @@ int main(){
     return -1;
   }
 
+  if (bind(mon_soc,  (struct sockaddr *)&monitor, sizeof monitor) < 0)
+  {
+    perror("\nbind to monitor failed");
+    return -1;
+  }
 
 
   // ============ Listen from client and send to server A,B,C ============ //
 
 
+
+  if (listen(mon_soc,6) < 0)
+  {
+    perror("\nlisten failed monitor");
+    return -1;
+  }
 
 
   if (listen(cli_soc,6) < 0)
@@ -280,15 +291,9 @@ int main(){
   double *CalculatedValues;
 
   int new_socket = accept(cli_soc, (struct sockaddr *)&client,(socklen_t*)& cli_len);
+  int var = accept(mon_soc, (struct sockaddr *)&monitor,(socklen_t*)& monitor);
 
   RecievedInputsFromClient = recieveClient(new_socket);
-
-  if (connect(mon_soc, (struct sockaddr *)&monitor, sizeof(monitor)) < 0)
-  {
-    perror("Connection Failed");
-    return -1;
-  }
-
 
   sendData(awsAsClient, serverA, RecievedInputsFromClient);
   ResultsFromA = recieveFromA(awsAsClient, &serverA, servA_len, 'A');
