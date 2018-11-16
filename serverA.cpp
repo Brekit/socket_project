@@ -26,7 +26,7 @@
 #define UDPAWS 24687
 
 int main(){
-  printf("Server A is up and running\n");
+  printf("The Server A is up and running using UDP port <21687>\n");
   int awsSoc;
   struct sockaddr_in aws, aws2;
   int addrlen = sizeof(int);
@@ -75,7 +75,7 @@ int main(){
     recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&aws, (socklen_t *)&addrlen);
     //recv(awsSoc,Vals, 3*sizeof(int),0);
     //close(awsSoc);
-    printf("The Server A received input <%d>\n", Vals[0]);
+    //printf("The Server A received input <%d>\n", Vals[0]);
 
     std::stringstream x;
     x << Vals[0];

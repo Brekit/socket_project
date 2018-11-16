@@ -52,7 +52,18 @@ int main(){
     perror("\nbind to socket failed");
     return -1;
   }
-  int new_socket = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)&addrlen);
+  while (getline(databaseB,line))    // get next line in file
+  {
+      dbBRows.clear();
+      std::stringstream ss(line);
+      while (getline(ss,field,','))  // break line into comma delimitted fields
+      {
+          dbBRows.push_back(field);  // add each field to the 1D array
+      }
+      dbB.push_back(dbBRows);  // add the 1D array to the 2D array
+  }
+     databaseB.close();
+  //int new_socket = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)&addrlen);
   //recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&src_addr,&src_addr_len);
   recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&aws, (socklen_t *)&addrlen);
   printf("The Server B received input <%d>\n", Vals[0]);
@@ -72,17 +83,7 @@ int main(){
      std::vector< std::vector<std::string> > dbB;  // the 2D array
      std::vector<std::string> dbBRows;                // array of values for one line only
 
-     while (getline(databaseB,line))    // get next line in file
-     {
-         dbBRows.clear();
-         std::stringstream ss(line);
-         while (getline(ss,field,','))  // break line into comma delimitted fields
-         {
-             dbBRows.push_back(field);  // add each field to the 1D array
-         }
-         dbB.push_back(dbBRows);  // add the 1D array to the 2D array
-     }
-        databaseB.close();
+
 
      // print out what was read in
      double dbValues[4];
@@ -96,7 +97,7 @@ int main(){
          {
            const char * c = dbB[i][k].c_str();
            dbValues[k] =  strtod(c, &point);
-           std::cout << dbValues[k] << "*\n";
+           //std::cout << dbValues[k] << "*\n";
           }
        }
      }

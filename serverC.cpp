@@ -51,7 +51,7 @@ struct ComputeTheseValues Compute(double bandwith, double signalIndBm, double no
 }
 
 int main(){
-  printf("Server C is up and running\n");
+  printf("The Server C is up and running using UDP on port <23687>\n");
   int awsSoc;
   double linkRate;
   FusedArray recievedSample;

@@ -23,10 +23,29 @@ struct FusedArray{
 
 #define servAPort 21687
 #define servBPort 22687
-//#define servCPort 23687
+#define servCPort 23687
 #define UDPport 24687
 #define clientTCP 25687
 #define MonitorTCP 26687
+
+int SendForCompute(int *array1, double *array2, int socket, struct sockaddr_in server){
+struct FusedArray FusePacket;
+  for(int i=0; i < 4; i++){
+    FusePacket.clientInput[i] = array1[i];
+  }
+  for(int j=0; j < 5; j++){
+    FusePacket.dbValues[j] = array2[j];
+  }
+  if (sendto(socket, (char*)&FusePacket, sizeof(FusePacket), 0, (struct sockaddr *)&server , sizeof(server)) < 0)
+  {
+    perror("Send to server C failed");
+    return -1;
+  }
+  else
+  {
+    std::cout << "The AWS sent link ID=<" <<FusePacket.clientInput[0] << ">, size=<" << FusePacket.clientInput[1]<<">, power=<" << FusePacket.clientInput[2]<<">, and link information to Backend-Server C using UDP port <24687>" << std::endl;
+  }
+}
 
 double * recieveUDP(int socket, struct sockaddr_in *server, int address_length, char Val){
   static double linkVals[5];
@@ -40,59 +59,16 @@ else
   {
     if(int(linkVals[0])==0)
     {
-      //printf("link A val: %0f\n", linkAVals[0]);
-      //printf("The AWS recieved <0> matches from Backend-server <%s> using UDP port <24687>\n", serverString.c_str());
       std::cout << "The AWS recieved <0> matches from Backend-server <" << Val << "> using UDP port <24687>" << std::endl;
     }
     else
     {
-      //printf("link A val: %0f\n", linkAVals[0]);
-      //printf("The AWS recieved <1> matches from Backend-server <%s> using UDP port <24687>\n", serverString.c_str());
-      //printf("sending to C (a)\n");
       std::cout << "The AWS recieved <1> matches from Backend-server <" << Val << "> using UDP port <24687>" << std::endl;
-      //sendData(c_soc, serverC, x);
-      //sendData(c_soc, serverC, linkAVals);
-      //sendData(c_soc, serverC, linkAVals);
     }
   }
   //close(socket);
   return linkVals;
 }
-
-/*
-  if (recvfrom(b_soc,linkBVals, 5*sizeof(double),0,(struct sockaddr *)&serverB,(socklen_t*)&addrlen2 ) < 0)
-    {
-      perror("Couldnt recieve from server A");
-      return -1;
-    }
-  else
-    {
-      if(int(linkBVals[0])==0)
-      {
-        //printf("link B val: %0f\n", linkBVals[0]);
-        printf("The AWS recieved <0> matches from Backnend-server <B> using UDP port <22687>\n");
-      }
-      else
-      {
-        //printf("link A val: %0f\n", linkBVals[0]);
-
-        printf("The AWS recieved <1> matches from Backend-server < B > using UDP port <22687>\n");
-        printf("sending to C (b)\n");
-        for(int i =0; i < 4; i++){
-          Sample.clientInput[i] = x[i];
-        }
-        for(int j=0; j < 5; j++){
-          Sample.dbValues[j] = linkBVals[j];
-        }
-        if (sendto(c_soc, (char*)&Sample, sizeof(Sample), 0, (struct sockaddr *)&serverC , sizeof(serverC)) < 0)
-        {
-          perror("Send to server C failed");
-          return -1;
-        }
-
-      }
-    }
-*/
 
 
 int sendData(int socket, struct sockaddr_in server, int *Data){
@@ -170,9 +146,9 @@ int main(){
   //   printf("\nerror, Server C socket creation failed");
   //   return -1;
   // }
-  // serverC.sin_family = AF_INET;
-  // serverC.sin_addr.s_addr = inet_addr("127.0.0.1");
-  // serverC.sin_port = htons(servCPort);
+  serverC.sin_family = AF_INET;
+  serverC.sin_addr.s_addr = inet_addr("127.0.0.1");
+  serverC.sin_port = htons(servCPort);
 
   if((mon_soc = socket(AF_INET, SOCK_STREAM,0)) == 0)
   {
@@ -201,7 +177,7 @@ int main(){
   }
 
   // ============ Listen from client and send to server A,B,C ============ //
-  int *x;
+
 
   if (listen(cli_soc,6) < 0)
   {
@@ -214,62 +190,29 @@ int main(){
     return -1;
   }
 
-
+  int *RecievedInputsFromClient;
+  double *ResultsFromA;
+  double *ResultsFromB;
   int new_socket = accept(cli_soc, (struct sockaddr *)&client,(socklen_t*)& cli_len);
 
+  RecievedInputsFromClient = recieveClient(new_socket);
+
+  sendData(awsAsClient, serverA, RecievedInputsFromClient);
+  ResultsFromA = recieveUDP(awsAsClient, &serverA, servA_len, 'A');
+  sendData(awsAsClient, serverB, RecievedInputsFromClient);
+  ResultsFromB = recieveUDP(awsAsClient, &serverB, servB_len, 'B');
+
+  if (int(ResultsFromA[0])!=0){
+    SendForCompute(RecievedInputsFromClient, ResultsFromA, awsAsClient, serverC);
+    recieveComputed(awsAsClient, &serverC, servc_len, 'C');
+  }
+  if (int(ResultsFromB[0])!=0){
+    SendForCompute(RecievedInputsFromClient, ResultsFromB, awsAsClient, serverC);
+    recieveComputed(awsAsClient, &serverC, servc_len, 'C');
+  }
 
 
-  x = recieveClient(new_socket);
 
-  // if (sendto(awsAsClient, (char*)x, 3*sizeof(int), 0, (struct sockaddr *)&serverA , sizeof(serverA)) < 0)
-  // {
-  //   perror("Send to server A failed");
-  //   return -1;
-  // }
-  // else {
-  //   printf("AWS submitted <%d> to servers\n",x[0]);
-  // }
-
-  sendData(awsAsClient, serverA, x);
-  recieveUDP(awsAsClient, &serverA, servA_len, 'A');
-  sendData(awsAsClient, serverB, x);
-  recieveUDP(awsAsClient, &serverB, servB_len, 'B');
-  // double linkVals[5];
-  // if (recvfrom(awsAsClient,linkVals, 5*sizeof(double),0,(struct sockaddr *)&serverA,(socklen_t*)&servA_len ) < 0)
-  //   {
-  //     perror("Couldnt recieve from server A");
-  //     return -1;
-  //   }
-  // else
-  //   {
-  //     if(int(linkVals[0])==0)
-  //     {
-  //       //printf("link B val: %0f\n", linkBVals[0]);
-  //       printf("The AWS recieved <0> matches from Backnend-server <B> using UDP port <22687>\n");
-  //     }
-  //     else
-  //     {
-  //       //printf("link A val: %0f\n", linkBVals[0]);
-  //
-  //       printf("The AWS recieved <1> matches from Backend-server < B > using UDP port <22687>\n");
-  //       printf("sending to C (b)\n");
-  //       for(int i =0; i < 4; i++){
-  //         Sample.clientInput[i] = x[i];
-  //       }
-  //       for(int j=0; j < 5; j++){
-  //         Sample.dbValues[j] = linkVals[j];
-  //       }
-  //       if (sendto(c_soc, (char*)&Sample, sizeof(Sample), 0, (struct sockaddr *)&serverC , sizeof(serverC)) < 0)
-  //       {
-  //         perror("Send to server C failed");
-  //         return -1;
-  //       }
-  //
-  //     }
-  //   }
-
-  //sendData(b_soc, serverB, x);
-  //recieveUDP(b_soc, &serverB, addrlen2);
 
   //char *hello = "Hello from server";
   //send(mon_soc , hello , strlen(hello) , 0 );
