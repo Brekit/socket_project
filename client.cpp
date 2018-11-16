@@ -9,7 +9,13 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <sys/wait.h>
+#include <iostream>
+#include <iomanip>
 
+
+struct Send2Client{
+  double value;
+};
 
 #define PORT 25687
 /*
@@ -25,6 +31,8 @@ int main(int argc, char* argv[]){
   int size = atoi(argv[2]);
   int power = atoi(argv[3]);
   int Vals[3] = {link, size, power};
+  //double AWSData;
+  Send2Client AWSData;
 
    //struct sockaddr_in address;
   int awsSoc = 0, valread;
@@ -55,6 +63,15 @@ int main(int argc, char* argv[]){
   } else {
     printf("The client sent link=%d, size=%d, power=%d to AWS.\n", link, size, power);
   }
+
+  if (recv(awsSoc,  (void*)&AWSData, sizeof(AWSData),0) < 0) {
+    perror("Failed to receive from AWS");
+  } else if(AWSData.value!=0) {
+  std::cout << "The delay for link <" << link << "> is <" << std::setprecision(2) <<  AWSData.value << ">ms" << std::endl;
+} else {
+  std::cout << "Found no matches for link <" << link << "> " << std::endl;
+}
+
 
 
 

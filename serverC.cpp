@@ -45,8 +45,8 @@ struct ComputeTheseValues Compute(double bandwith, double signalIndBm, double no
   computed.signalW = dBmtoWatts(signalIndBm);
   computed.noiseW = dBmtoWatts(noiseIndBm);
   computed.ChannelCap = (bandwith*10e6) * (log2 (1+(computed.signalW/computed.noiseW)));
-  computed.dProp = (distance*1000)/(speed*10e7)/10e-6;
-  computed.dTrans = (size/computed.ChannelCap)/10e-6;
+  computed.dProp = (distance*1000)/(speed*10e7)/10e-9;
+  computed.dTrans = (size/computed.ChannelCap)/10e-9;
   computed.E2E = computed.dProp+computed.dTrans;
   return computed;
 }

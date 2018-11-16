@@ -31,6 +31,10 @@ struct FusedArray{
   double dbValues[5];
 };
 
+struct Send2Client{
+  double value;
+};
+
 struct MonitorDataset{
   int clientInput[3];
   double CalculatedValues[3];
@@ -169,7 +173,21 @@ else if(Data.CalculatedValues[0] != 0)
 
 }
 
-void SendToClient (){
+void SendToClient (int socket, double e2eDelay){
+  struct Send2Client Delay;
+  Delay.value = e2eDelay;
+
+  if (Delay.value!= 0)
+  {
+    if (send(socket, &Delay, sizeof(Delay),0) < 0)
+    {
+      perror("Couldnt send to Monitor!");
+    }
+    else
+    {
+      std::cout << "The AWS sent delay=<" << Delay.value << ">ms to the client using TCP port <25687>" << std::endl;
+    }
+  }
 
 }
 
@@ -289,7 +307,8 @@ int main(){
     struct CalculatedValuesFromC CalculatedDatasetA = recieveComputed(awsAsClient, &serverC, servC_len);
     std::cout << "The AWSA sent delay=<" << std::setprecision(2) << CalculatedDatasetA.E2E << ">ms to the client using TCP over port <26687>" << std::endl;
     //std::cout << "The AWSA sent delay=<"  << CalculatedDatasetA.dProp << ">ms to the client using TCP over port <25687>" << std::endl;
-    SendToMonitor(mon_soc, RecievedInputsFromClient,CalculatedDatasetA.dTrans,CalculatedDatasetA.dProp,CalculatedDatasetA.E2E );
+    SendToMonitor(mon_soc, RecievedInputsFromClient,CalculatedDatasetA.dTrans,CalculatedDatasetA.dProp,CalculatedDatasetA.E2E);
+    SendToClient(cli_soc, CalculatedDatasetA.E2E);
   }
   else
   {
@@ -301,8 +320,7 @@ int main(){
     struct CalculatedValuesFromC CalculatedDatasetB = recieveComputed(awsAsClient, &serverC, servC_len);
     std::cout << "The AWSB sent delay=<" << std::setprecision(2) << CalculatedDatasetB.E2E << ">ms to the client using TCP over port <26687>" << std::endl;
     SendToMonitor(mon_soc, RecievedInputsFromClient,CalculatedDatasetB.dTrans,CalculatedDatasetB.dProp,CalculatedDatasetB.E2E );
-    //sendData(mon_soc, monitor, RecievedInputsFcromClient);
-    //SendToMonitor
+    SendToClient(cli_soc, CalculatedDatasetB.E2E);
   }
   else
   {
@@ -312,6 +330,7 @@ int main(){
 if ((int(ResultsFromA[0])==0) && (int(ResultsFromA[0])==0))
 {
   SendToMonitor(mon_soc, RecievedInputsFromClient , 0,0,0);
+  SendToClient(cli_soc, 0);
 }
 
 
