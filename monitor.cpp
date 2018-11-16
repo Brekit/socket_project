@@ -10,10 +10,7 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <iostream>
-#include <string.h>
-#include <fstream>
-#include <sstream>
-#include <vector>
+#include <iomanip>
 
 #define AWSPORT 26687
 
@@ -60,8 +57,36 @@ int var = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)& addrlen);
     return -1;
   }
   else{
-    printf("Recieved %d, %d, %d from aws",  RecievedData.clientInput[0], RecievedData.clientInput[1], RecievedData.clientInput[2]);
-    printf("Recieved %f, %f, %f from aws", RecievedData.CalculatedValues[0], RecievedData.CalculatedValues[1], RecievedData.CalculatedValues[2]);
+    std::cout << "The monitor recieved Link ID=<"
+    << RecievedData.clientInput[0]
+    << ">, size=<"
+    << RecievedData.clientInput[1]
+    << ">, and power=<"
+    << RecievedData.clientInput[2]
+    << "> from AWS"
+    << std::endl;
+
+    std::cout<< "The result for link <"
+    << RecievedData.clientInput[0]
+    << "> :"
+    << std::endl;
+
+    std::cout<< "Tt = <"
+    << std::setprecision(2) << RecievedData.CalculatedValues[0]
+    << "> ms,"
+    << std::endl;
+
+    std::cout<< "Tp = <"
+    << std::setprecision(2) << RecievedData.CalculatedValues[1]
+    << "> ms,"
+    << std::endl;
+
+    std::cout<< "Delay = <"
+    << std::setprecision(2) << RecievedData.CalculatedValues[2]
+    << "> ms,"
+    << std::endl;
+
+
   }
 
   // printf("The Server A received input:%d, %.2f\n", recievedSample.clientInput[0], recievedSample.dbValues[3]);
