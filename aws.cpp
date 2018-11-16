@@ -16,6 +16,8 @@
 #include <iostream>
 #include <string>
 #include <iomanip>
+#include <limits>
+
 
 #define servAPort 21687
 #define servBPort 22687
@@ -157,11 +159,11 @@ Data.CalculatedValues[2] = E2EDelay;
 
 if (send(socket, &Data, sizeof(Data),0) < 0)
   {
-    perror("Couldnt recieve from server A");
+    perror("Couldnt send to Monitor!");
   }
-else
+else if(Data.CalculatedValues[0] != 0)
   {
-      std::cout << "The AWS sent to monitor" << std::endl;
+      std::cout << "The AWS sent to detailed results to the monitor using TCP over port <26687>" << std::endl;
   }
   //close(socket);
 
@@ -285,35 +287,32 @@ int main(){
   if (int(ResultsFromA[0])!=0){
     SendForCompute(RecievedInputsFromClient, ResultsFromA, awsAsClient, serverC);
     struct CalculatedValuesFromC CalculatedDatasetA = recieveComputed(awsAsClient, &serverC, servC_len);
-    //std::cout << "The AWSA sent delay=<" << std::setprecision(2) << CalculatedDatasetA.E2E << ">ms to the client using TCP over port <25687>" << std::endl;
-    //std::cout << "The AWSA sent delay=<" << std::setprecision(2) << CalculatedDatasetA.dProp << ">ms to the client using TCP over port <25687>" << std::endl;
+    std::cout << "The AWSA sent delay=<" << std::setprecision(2) << CalculatedDatasetA.E2E << ">ms to the client using TCP over port <26687>" << std::endl;
+    //std::cout << "The AWSA sent delay=<"  << CalculatedDatasetA.dProp << ">ms to the client using TCP over port <25687>" << std::endl;
     SendToMonitor(mon_soc, RecievedInputsFromClient,CalculatedDatasetA.dTrans,CalculatedDatasetA.dProp,CalculatedDatasetA.E2E );
-
+  }
+  else
+  {
+    SendToMonitor(mon_soc, RecievedInputsFromClient , 0,0,0);
   }
 
   if (int(ResultsFromB[0])!=0){
     SendForCompute(RecievedInputsFromClient, ResultsFromB, awsAsClient, serverC);
     struct CalculatedValuesFromC CalculatedDatasetB = recieveComputed(awsAsClient, &serverC, servC_len);
-    std::cout << "The AWSB sent delay=<" << std::setprecision(2) << CalculatedDatasetB.E2E << ">ms to the client using TCP over port <25687>" << std::endl;
+    std::cout << "The AWSB sent delay=<" << std::setprecision(2) << CalculatedDatasetB.E2E << ">ms to the client using TCP over port <26687>" << std::endl;
     SendToMonitor(mon_soc, RecievedInputsFromClient,CalculatedDatasetB.dTrans,CalculatedDatasetB.dProp,CalculatedDatasetB.E2E );
     //sendData(mon_soc, monitor, RecievedInputsFcromClient);
     //SendToMonitor
   }
+  else
+  {
+    SendToMonitor(mon_soc, RecievedInputsFromClient , 0,0,0);
+  }
 
-
-
-
-  //char *hello = "Hello from server";
-  //send(mon_soc , hello , strlen(hello) , 0 );
-
-
-
-
-
-    // if (((int(linkAVals[0])==0) && (int(linkBVals[0])==0))
-    // {
-    //   //send message to both client and monitor that nothing was found
-    // }
+if ((int(ResultsFromA[0])==0) && (int(ResultsFromA[0])==0))
+{
+  SendToMonitor(mon_soc, RecievedInputsFromClient , 0,0,0);
+}
 
 
 

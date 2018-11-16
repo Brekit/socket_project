@@ -56,6 +56,9 @@ int var = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)& addrlen);
     perror("recieve failed");
     return -1;
   }
+  if (RecievedData.CalculatedValues[0]==0){
+    std::cout << "Found no matches for link <" << RecievedData.clientInput[0] << ">" << std::endl;
+  }
   else{
     std::cout << "The monitor recieved Link ID=<"
     << RecievedData.clientInput[0]
@@ -85,8 +88,6 @@ int var = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)& addrlen);
     << std::setprecision(2) << RecievedData.CalculatedValues[2]
     << "> ms,"
     << std::endl;
-
-
   }
 
   // printf("The Server A received input:%d, %.2f\n", recievedSample.clientInput[0], recievedSample.dbValues[3]);
