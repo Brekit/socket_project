@@ -47,6 +47,21 @@ struct FusedArray FusePacket;
   }
 }
 
+double * recieveComputed(int socket, struct sockaddr_in *server, int address_length){
+  static double ComputedValues[8];
+  //double linkBVals[5];c
+if (recvfrom(socket,ComputedValues, 8*sizeof(double),0,(struct sockaddr *)&server,(socklen_t*)&address_length) < 0)
+  {
+    perror("Couldnt recieve from server A");
+  }
+else
+  {
+      std::cout << "The AWS recieved outputs from Backend-server C using UDP port <24687>" << std::endl;
+  }
+  //close(socket);
+  return ComputedValues;
+}
+
 double * recieveUDP(int socket, struct sockaddr_in *server, int address_length, char Val){
   static double linkVals[5];
   //double linkBVals[5];c
@@ -101,6 +116,7 @@ int main(){
   int cli_len = sizeof(client);
   int servA_len = sizeof(serverA);
   int servB_len = sizeof(serverB);
+  int servC_len = sizeof(serverB);
 
   // ============ Create All the Sockets ============ //
 
@@ -204,11 +220,11 @@ int main(){
 
   if (int(ResultsFromA[0])!=0){
     SendForCompute(RecievedInputsFromClient, ResultsFromA, awsAsClient, serverC);
-    recieveComputed(awsAsClient, &serverC, servc_len, 'C');
+    recieveComputed(awsAsClient, &serverC, servC_len);
   }
   if (int(ResultsFromB[0])!=0){
     SendForCompute(RecievedInputsFromClient, ResultsFromB, awsAsClient, serverC);
-    recieveComputed(awsAsClient, &serverC, servc_len, 'C');
+    recieveComputed(awsAsClient, &serverC, servC_len);
   }
 
 
