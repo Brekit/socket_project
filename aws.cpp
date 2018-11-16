@@ -17,17 +17,22 @@
 #include <string>
 #include <iomanip>
 
-struct FusedArray{
-  int clientInput[3];
-  double dbValues[5];
-};
-
 #define servAPort 21687
 #define servBPort 22687
 #define servCPort 23687
 #define UDPport 24687
 #define clientTCP 25687
 #define MonitorTCP 26687
+
+struct FusedArray{
+  int clientInput[3];
+  double dbValues[5];
+};
+
+struct MonitorDataset{
+  int clientInput[3];
+  double CalculatedValues[3];
+};
 
 struct CalculatedValuesFromC{
   double ChannelCap, signalW, noiseW, dProp, dTrans, E2E;
@@ -141,37 +146,16 @@ int *recieveClient(int socket){
   return Values;
 }
 
-// void SendAToMonitor(int socket, int *array1, double delayTrans, double delayProp, double E2EDelay){
-// double FusedDataSet[6];
-// for (int i=0; i < 4; i++){
-// FusedDataSet[i] = array1[i];
-// }
-// FusedDataSet[4] = delayTrans;
-// FusedDataSet[5] = delayProp;
-// FusedDataSet[6] = E2EDelay;
-//
-// if (send(socket, FusedDataSet, sizeof(FusedDataSet),0) < 0)
-//   {
-//     perror("Couldnt recieve from server A");
-//   }
-// else
-//   {
-//       std::cout << "The AWS sent to monitor" << std::endl;
-//   }
-//   //close(socket);
-//
-// }
-
 void SendToMonitor(int socket, int *array1, double delayTrans, double delayProp, double E2EDelay){
-double FusedDataSet[6];
+struct MonitorDataset Data;
 for (int i=0; i < 3; i++){
-FusedDataSet[i] = array1[i];
+Data.clientInput[i] = array1[i];
 }
-FusedDataSet[3] = delayTrans;
-FusedDataSet[4] = delayProp;
-FusedDataSet[5] = E2EDelay;
+Data.CalculatedValues[0] = delayTrans;
+Data.CalculatedValues[1] = delayProp;
+Data.CalculatedValues[2] = E2EDelay;
 
-if (send(socket, FusedDataSet, sizeof(FusedDataSet),0) < 0)
+if (send(socket, &Data, sizeof(Data),0) < 0)
   {
     perror("Couldnt recieve from server A");
   }

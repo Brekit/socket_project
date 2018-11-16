@@ -17,12 +17,17 @@
 
 #define AWSPORT 26687
 
+struct MonitorDataset{
+  int clientInput[3];
+  double CalculatedValues[3];
+};
+
 int main(){
   printf("The monitor is up and running\n");
   int awsSoc;
+  struct MonitorDataset RecievedData;
   struct sockaddr_in aws;
   int addrlen = sizeof(aws);
-  double FusedSet[6];
   int AcceptedValue;
   double CalculatedValues[5];
 
@@ -49,14 +54,14 @@ int main(){
 
 int var = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)& addrlen);
 
-  if (recv(var, FusedSet, sizeof(FusedSet),0) < 0)
+  if (recv(var, (void *) &RecievedData, sizeof(RecievedData),0) < 0)
   {
     perror("recieve failed");
     return -1;
   }
   else{
-    printf("Recieved %d, %d, %d from aws",  FusedSet[0], FusedSet[1], FusedSet[2]);
-    printf("Recieved %f, %f, %f from aws", FusedSet[3], FusedSet[4], FusedSet[5]);
+    printf("Recieved %d, %d, %d from aws",  RecievedData.clientInput[0], RecievedData.clientInput[1], RecievedData.clientInput[2]);
+    printf("Recieved %f, %f, %f from aws", RecievedData.CalculatedValues[0], RecievedData.CalculatedValues[1], RecievedData.CalculatedValues[2]);
   }
 
   // printf("The Server A received input:%d, %.2f\n", recievedSample.clientInput[0], recievedSample.dbValues[3]);
