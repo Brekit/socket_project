@@ -52,6 +52,16 @@ int main(){
     perror("\nbind to socket failed");
     return -1;
   }
+
+  std::string line, field;
+
+  std::vector< std::vector<std::string> > dbB;  // the 2D array
+  std::vector<std::string> dbBRows;                // array of values for one line only
+
+  std::ifstream databaseB ("database_b.csv");
+  if(!databaseB.is_open()) std::cout << "Error: Couldn't open database" << std::endl;
+  std::string link;
+
   while (getline(databaseB,line))    // get next line in file
   {
       dbBRows.clear();
@@ -73,17 +83,6 @@ int main(){
   std::string numberAsString(x.str());
 
   //std::cout << "Checking for entry in db " << numberAsString << std::endl;
-
-   std::ifstream databaseB ("database_b.csv");
-   if(!databaseB.is_open()) std::cout << "Error: Couldn't open database" << std::endl;
-   std::string link;
-
-     std::string line, field;
-
-     std::vector< std::vector<std::string> > dbB;  // the 2D array
-     std::vector<std::string> dbBRows;                // array of values for one line only
-
-
 
      // print out what was read in
      double dbValues[4];

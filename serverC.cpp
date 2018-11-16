@@ -21,6 +21,7 @@
 #include <iostream>
 #include <math.h>
 #define AWS_SERVC 23687
+#define UDPport 24687
 
 
 double dBmtoWatts(double dbm){
@@ -55,11 +56,12 @@ int main(){
   int awsSoc;
   double linkRate;
   FusedArray recievedSample;
-  struct sockaddr_in aws;
+  struct sockaddr_in aws, aws2;
   //struct sockaddr_storage src_addr;
   //socklen_t src_addr_len=sizeof(src_addr);
-  int addrlen = sizeof(int);
-  int Vals[3];
+  int addrlen = sizeof(aws);
+  int addrlen2 = sizeof(aws2);
+  //int Vals[3];
   //memset(&hints,0,sizeof(hints));
   if((awsSoc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
   {
@@ -70,13 +72,17 @@ int main(){
   aws.sin_addr.s_addr = inet_addr("127.0.0.1");
   aws.sin_port = htons(AWS_SERVC);
 
+  aws2.sin_family = AF_INET;
+  aws2.sin_addr.s_addr = inet_addr("127.0.0.1");
+  aws2.sin_port = htons(UDPport);
+
   if (bind(awsSoc, (struct sockaddr *)&aws, sizeof aws) < 0)
   {
     perror("\nbind to socket failed");
     return -1;
   }
 
-  int new_socket = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)&addrlen);
+  //int new_socket = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)&addrlen);
   while(true){
   if (recvfrom(awsSoc,&recievedSample, sizeof(recievedSample),0, (struct sockaddr*)&aws, (socklen_t *)&addrlen) < 0)
   {
@@ -92,7 +98,7 @@ int main(){
 
   //sendto(c_soc, (char*)&Sample, sizeof(Sample), 0, (struct sockaddr *)&serverC , sizeof(serverC))
 
-  if (sendto(awsSoc,&Testing, sizeof(Testing),0, (struct sockaddr*)&aws, sizeof(aws)) < 0)
+  if (sendto(awsSoc,&Testing, sizeof(Testing),0, (struct sockaddr*)&aws2, sizeof(aws2)) < 0)
   {
     perror("Recieve failed");
     return -1;
