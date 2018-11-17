@@ -31,10 +31,6 @@ struct FusedArray{
   double dbValues[5];
 };
 
-struct Send2Client{
-  double value;
-};
-
 struct MonitorDataset{
   int clientInput[3];
   double CalculatedValues[3];
@@ -46,7 +42,7 @@ struct CalculatedValuesFromC{
 
 
 int SendForCompute(int *array1, double *array2, int socket, struct sockaddr_in server){
-struct FusedArray FusePacket;
+  struct FusedArray FusePacket;
   for(int i=0; i < 4; i++){
     FusePacket.clientInput[i] = array1[i];
   }
@@ -65,16 +61,16 @@ struct FusedArray FusePacket;
 }
 
 struct CalculatedValuesFromC recieveComputed(int socket, struct sockaddr_in *server, int address_length){
-struct CalculatedValuesFromC Dataset;
+  struct CalculatedValuesFromC Dataset;
   //static double ComputedValues[8];
   //double linkBVals[5];c
-if (recvfrom(socket, (void *) &Dataset, sizeof(Dataset),0,(struct sockaddr *)&server,(socklen_t*)&address_length) < 0)
+  if (recvfrom(socket, (void *) &Dataset, sizeof(Dataset),0,(struct sockaddr *)&server,(socklen_t*)&address_length) < 0)
   {
     perror("Couldnt recieve from server A");
   }
-else
+  else
   {
-      std::cout << "The AWS recieved outputs from Backend-server C using UDP port <24687>" << std::endl;
+    std::cout << "The AWS recieved outputs from Backend-server C using UDP port <24687>" << std::endl;
   }
   //close(socket);
   return Dataset;
@@ -83,12 +79,12 @@ else
 double * recieveFromA(int socket, struct sockaddr_in *server, int address_length, char Val){
   static double linkAVals[5];
   //double linkBVals[5];c
-if (recvfrom(socket,linkAVals, 5*sizeof(double),0,(struct sockaddr *)&server,(socklen_t*)&address_length) < 0)
+  if (recvfrom(socket,linkAVals, 5*sizeof(double),0,(struct sockaddr *)&server,(socklen_t*)&address_length) < 0)
   {
     perror("Couldnt recieve from server A");
     //return -1.00;
   }
-else
+  else
   {
     if(int(linkAVals[0])==0)
     {
@@ -108,12 +104,12 @@ else
 double * recieveFromB(int socket, struct sockaddr_in *server, int address_length, char Val){
   static double linkBVals[5];
   //double linkBVals[5];c
-if (recvfrom(socket,linkBVals, 5*sizeof(double),0,(struct sockaddr *)&server,(socklen_t*)&address_length) < 0)
+  if (recvfrom(socket,linkBVals, 5*sizeof(double),0,(struct sockaddr *)&server,(socklen_t*)&address_length) < 0)
   {
     perror("Couldnt recieve from server A");
     //return -1.00;
   }
-else
+  else
   {
     if(int(linkBVals[0])==0)
     {
@@ -152,43 +148,44 @@ int *recieveClient(int socket){
   return Values;
 }
 
-void SendToMonitor(int socket, int *array1, double delayTrans, double delayProp, double E2EDelay){
-struct MonitorDataset Data;
-for (int i=0; i < 3; i++){
-Data.clientInput[i] = array1[i];
-}
-Data.CalculatedValues[0] = delayTrans;
-Data.CalculatedValues[1] = delayProp;
-Data.CalculatedValues[2] = E2EDelay;
+int SendToMonitor(int socket, int *array1, double delayTrans, double delayProp, double E2EDelay){
+  struct MonitorDataset Data;
+  for (int i=0; i < 3; i++){
+    Data.clientInput[i] = array1[i];
+  }
+  Data.CalculatedValues[0] = delayTrans;
+  Data.CalculatedValues[1] = delayProp;
+  Data.CalculatedValues[2] = E2EDelay;
 
-if (send(socket, &Data, sizeof(Data),0) < 0)
+  if (send(socket, &Data, sizeof(Data),0) < 0)
   {
     perror("Couldnt send to Monitor!");
   }
-else if(Data.CalculatedValues[0] != 0)
+  else if(Data.CalculatedValues[0] != 0)
   {
-      std::cout << "The AWS sent to detailed results to the monitor using TCP over port <26687>" << std::endl;
+    std::cout << "The AWS sent to detailed results to the monitor using TCP over port <26687>" << std::endl;
+    return 0;
   }
-  //close(socket);
+  return 0;
 
 }
 
-void SendToClient (int socket, double e2eDelay){
-  struct Send2Client Delay;
-  Delay.value = e2eDelay;
-
-  if (Delay.value!= 0)
+int SendToClient (int socket, double e2eDelay){
+  if (e2eDelay!= 0)
   {
-    if (send(socket, &Delay, sizeof(Delay),0) < 0)
+    char charData[50];
+    sprintf(charData, "%f", e2eDelay);
+    if (send(socket, charData, sizeof(charData),0) < 0)
     {
       perror("Couldnt send to Monitor!");
     }
     else
     {
-      std::cout << "The AWS sent delay=<" << Delay.value << ">ms to the client using TCP port <25687>" << std::endl;
+      std::cout << "The AWS sent delay=<" << e2eDelay << ">ms to the client using TCP port <25687>" << std::endl;
+      return 0;
     }
   }
-
+  return 0;
 }
 
 
@@ -248,15 +245,17 @@ int main(){
 
 
   // ============ Let's bind ============ //
-  if (bind(cli_soc,  (struct sockaddr *)&client, sizeof client) < 0)
-  {
-    perror("\nbind to socket failed");
-    return -1;
-  }
 
   if (bind(awsAsClient,  (struct sockaddr *)&clientAws, sizeof clientAws) < 0)
   {
     perror("\nbind to monitor failed");
+    return -1;
+  }
+
+
+  if (bind(cli_soc,  (struct sockaddr *)&client, sizeof client) < 0)
+  {
+    perror("\nbind to socket failed");
     return -1;
   }
 
@@ -267,16 +266,13 @@ int main(){
   }
 
 
+
   // ============ Listen from client and send to server A,B,C ============ //
-
-
-
   if (listen(mon_soc,6) < 0)
   {
     perror("\nlisten failed monitor");
     return -1;
   }
-
 
   if (listen(cli_soc,6) < 0)
   {
@@ -284,60 +280,68 @@ int main(){
     return -1;
   }
 
+  while(true){
+
 
   int *RecievedInputsFromClient;
   double *ResultsFromA;
   double *ResultsFromB;
   double *CalculatedValues;
 
-  int new_socket = accept(cli_soc, (struct sockaddr *)&client,(socklen_t*)& cli_len);
-  int var = accept(mon_soc, (struct sockaddr *)&monitor,(socklen_t*)& monitor);
 
-  RecievedInputsFromClient = recieveClient(new_socket);
+  int cli_child = accept(cli_soc, (struct sockaddr *)&client,(socklen_t*)& cli_len);
+  int mon_child = accept(mon_soc, (struct sockaddr *)&monitor,(socklen_t*)& monitor);
+
+  RecievedInputsFromClient = recieveClient(cli_child);
+
 
   sendData(awsAsClient, serverA, RecievedInputsFromClient);
   ResultsFromA = recieveFromA(awsAsClient, &serverA, servA_len, 'A');
   sendData(awsAsClient, serverB, RecievedInputsFromClient);
   ResultsFromB = recieveFromB(awsAsClient, &serverB, servB_len, 'B');
 
+  std::cout << "=====" << std::endl;
+  std::cout << "Results A:" << int(ResultsFromA[0]) << std::endl;
+  std::cout << "Results B:" << int(ResultsFromB[0]) << std::endl;
+  std::cout << "=====" << std::endl;
 
-  // std::cout << "----" << std::endl;
-  //
-  // std::cout << ResultsFromA[0] << std::endl;
-  // std::cout << ResultsFromB[0] << std::endl;
-  // std::cout << "----" << std::endl;
 
-  if (int(ResultsFromA[0])!=0){
+  if ((int(ResultsFromA[0])==0) && (int(ResultsFromA[0])==0))
+  {
+    SendToMonitor(mon_child, RecievedInputsFromClient , 0,0,0);
+    std::cout << "**NeitherM**" << std::endl;
+
+    SendToClient(cli_child, 0);
+    std::cout << "**NeitherC**" << std::endl;
+
+  } else if (int(ResultsFromA[0])!=0){
     SendForCompute(RecievedInputsFromClient, ResultsFromA, awsAsClient, serverC);
     struct CalculatedValuesFromC CalculatedDatasetA = recieveComputed(awsAsClient, &serverC, servC_len);
-    std::cout << "The AWSA sent delay=<" << std::setprecision(2) << CalculatedDatasetA.E2E << ">ms to the client using TCP over port <26687>" << std::endl;
+    //std::cout << "The AWSA sent delay=<" << std::setprecision(2) << CalculatedDatasetA.E2E << ">ms to the client using TCP over port <26687>" << std::endl;
     //std::cout << "The AWSA sent delay=<"  << CalculatedDatasetA.dProp << ">ms to the client using TCP over port <25687>" << std::endl;
-    SendToMonitor(mon_soc, RecievedInputsFromClient,CalculatedDatasetA.dTrans,CalculatedDatasetA.dProp,CalculatedDatasetA.E2E);
-    SendToClient(cli_soc, CalculatedDatasetA.E2E);
-  }
-  else
-  {
-    SendToMonitor(mon_soc, RecievedInputsFromClient , 0,0,0);
+    SendToMonitor(mon_child, RecievedInputsFromClient,CalculatedDatasetA.dTrans,CalculatedDatasetA.dProp,CalculatedDatasetA.E2E);
+    std::cout << "**AM**" << std::endl;
+    SendToClient(cli_child, CalculatedDatasetA.E2E);
+    std::cout << "**1C**" << std::endl;
+    break;
+  } else if (int(ResultsFromB[0])!=0){
+      SendForCompute(RecievedInputsFromClient, ResultsFromB, awsAsClient, serverC);
+      struct CalculatedValuesFromC CalculatedDatasetB = recieveComputed(awsAsClient, &serverC, servC_len);
+      //std::cout << "The AWSB sent delay=<" << std::setprecision(2) << CalculatedDatasetB.E2E << ">ms to the client using TCP over port <26687>" << std::endl;
+      SendToMonitor(mon_child, RecievedInputsFromClient,CalculatedDatasetB.dTrans,CalculatedDatasetB.dProp,CalculatedDatasetB.E2E );
+      std::cout << "**BM**" << std::endl;
+      SendToClient(cli_child, CalculatedDatasetB.E2E);
+      std::cout << "**BC**" << std::endl;
+      break;
+    } else {
+    SendToMonitor(mon_child, RecievedInputsFromClient , 0,0,0);
+    std::cout << "**Aelse**" << std::endl;
+    break;
   }
 
-  if (int(ResultsFromB[0])!=0){
-    SendForCompute(RecievedInputsFromClient, ResultsFromB, awsAsClient, serverC);
-    struct CalculatedValuesFromC CalculatedDatasetB = recieveComputed(awsAsClient, &serverC, servC_len);
-    std::cout << "The AWSB sent delay=<" << std::setprecision(2) << CalculatedDatasetB.E2E << ">ms to the client using TCP over port <26687>" << std::endl;
-    SendToMonitor(mon_soc, RecievedInputsFromClient,CalculatedDatasetB.dTrans,CalculatedDatasetB.dProp,CalculatedDatasetB.E2E );
-    SendToClient(cli_soc, CalculatedDatasetB.E2E);
-  }
-  else
-  {
-    SendToMonitor(mon_soc, RecievedInputsFromClient , 0,0,0);
-  }
+  //close(mon_child);
+  //close(cli_child);
 
-if ((int(ResultsFromA[0])==0) && (int(ResultsFromA[0])==0))
-{
-  SendToMonitor(mon_soc, RecievedInputsFromClient , 0,0,0);
-  SendToClient(cli_soc, 0);
 }
-
-
 
 }

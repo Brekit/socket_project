@@ -65,50 +65,48 @@ int main(){
     dbA.push_back(dbARows);  // add the 1D array to the 2D array
   }
   databaseA.close();
+
   if (bind(awsSoc, (struct sockaddr *)&aws, sizeof aws) < 0)
   {
     perror("\nbind to socket failed");
     return -1;
   }
-  //int new_socket = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)&addrlen);
-  //while(true){
-    recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&aws, (socklen_t *)&addrlen);
-    //recv(awsSoc,Vals, 3*sizeof(int),0);
-    //close(awsSoc);
-    //printf("The Server A received input <%d>\n", Vals[0]);
-
-    std::stringstream x;
-    x << Vals[0];
-    std::string numberAsString(x.str());
-
-    std::cout << "Checking for entry in db " << numberAsString << std::endl;
 
 
-    // print out what was read in
-    double dbValues[4];
-    char *point;
+  recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&aws, (socklen_t *)&addrlen);
 
-    for (size_t i=0; i<dbA.size(); ++i)
+  std::stringstream x;
+  x << Vals[0];
+  std::string numberAsString(x.str());
+
+  std::cout << "Checking for entry in db " << numberAsString << std::endl;
+
+
+  // print out what was read in
+  double dbValues[4];
+  char *point;
+
+  for (size_t i=0; i<dbA.size(); ++i)
+  {
+    if (dbA[i][0] == numberAsString)
     {
-      if (dbA[i][0] == numberAsString)
+      for(int k=0; k<dbA[i].size(); k++)
       {
-        for(int k=0; k<dbA[i].size(); k++)
-        {
-          const char * c = dbA[i][k].c_str();
-          dbValues[k] =  strtod(c, &point);
-          std::cout << dbValues[k] << "*\n";
-        }
+        const char * c = dbA[i][k].c_str();
+        dbValues[k] =  strtod(c, &point);
+        std::cout << dbValues[k] << "*\n";
       }
     }
+  }
 
-    if (int(dbValues[0])!=0)
-    {
-      printf("The server A has found < 1 > matches\n");
-    }
-    else
-    {
-      printf("The server A has found < 0 > matches\n");
-    }
+  if (int(dbValues[0])!=0)
+  {
+    printf("The server A has found < 1 > matches\n");
+  }
+  else
+  {
+    printf("The server A has found < 0 > matches\n");
+  }
 
 
   if (sendto(awsSoc, dbValues, 5*sizeof(double), 0, (struct sockaddr *)&aws2 , sizeof(aws2)) < 0)
@@ -119,7 +117,7 @@ int main(){
   else {
     printf("The server A finished sending the ouput to AWS\n");
   }
-//}
+
 
 
 }

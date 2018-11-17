@@ -28,6 +28,7 @@ int main(){
   int AcceptedValue;
   double CalculatedValues[5];
 
+
   if((awsSoc = socket(AF_INET, SOCK_STREAM,0)) == 0)
   {
     printf("\nerror, Server A socket creation failed");
@@ -37,12 +38,13 @@ int main(){
   aws.sin_addr.s_addr = inet_addr("127.0.0.1");
   aws.sin_port = htons(AWSPORT);
 
+
   if (connect(awsSoc, (struct sockaddr *)&aws, sizeof(aws)) < 0)
   {
     perror("Connection Failed");
     return -1;
   }
-
+  //while (true){
   if (recv(awsSoc, (void *) &RecievedData, sizeof(RecievedData),0) < 0)
   {
     perror("recieve failed");
@@ -80,12 +82,10 @@ int main(){
     << std::setprecision(2) << RecievedData.CalculatedValues[2]
     << "> ms,"
     << std::endl;
-  }
 
-  // printf("The Server A received input:%d, %.2f\n", recievedSample.clientInput[0], recievedSample.dbValues[3]);
-  // printf("Link: %.2f\n", Testing.ChannelCap);
-  // printf("size: %d\n", recievedSample.clientInput[1]);
-  // printf("dProp: %.2f\n", Testing.dProp);
-  // printf("dTrans: %.2f\n", Testing.dTrans);
+    const char *MSG="ACK";
+    send(awsSoc, MSG, strlen(MSG), 0);
+  }
+  //}
 
 }

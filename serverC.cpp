@@ -83,7 +83,7 @@ int main(){
   }
 
   //int new_socket = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)&addrlen);
-  while(true){
+  //while(true){
   if (recvfrom(awsSoc,&recievedSample, sizeof(recievedSample),0, (struct sockaddr*)&aws, (socklen_t *)&addrlen) < 0)
   {
     perror("Recieve failed");
@@ -92,7 +92,7 @@ int main(){
   //recv(awsSoc,Vals, 3*sizeof(int),0);
   //close(awsSoc);
   printf("The Server C received link information of <%d>, file size <%d>, and signal power <%d>\n", recievedSample.clientInput[0], recievedSample.clientInput[1], recievedSample.clientInput[2]);
-          //Compute(double bandwith, double signalIndBm, double noiseIndBm, double distance, double speed, int size ){
+  //Compute(double bandwith, double signalIndBm, double noiseIndBm, double distance, double speed, int size ){
   struct ComputeTheseValues Testing = Compute(recievedSample.dbValues[1], recievedSample.clientInput[2], recievedSample.dbValues[4], recievedSample.dbValues[2], recievedSample.dbValues[3], recievedSample.clientInput[1]);
   printf("The Server C finished calculation for link <%d>\n", recievedSample.clientInput[0]);
 
@@ -107,5 +107,5 @@ int main(){
     printf("The Server C finished sending the output to AWS\n");
   }
 
-}
+  //}
 }

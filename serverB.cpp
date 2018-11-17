@@ -64,15 +64,16 @@ int main(){
 
   while (getline(databaseB,line))    // get next line in file
   {
-      dbBRows.clear();
-      std::stringstream ss(line);
-      while (getline(ss,field,','))  // break line into comma delimitted fields
-      {
-          dbBRows.push_back(field);  // add each field to the 1D array
-      }
-      dbB.push_back(dbBRows);  // add the 1D array to the 2D array
+    dbBRows.clear();
+    std::stringstream ss(line);
+    while (getline(ss,field,','))  // break line into comma delimitted fields
+    {
+      dbBRows.push_back(field);  // add each field to the 1D array
+    }
+    dbB.push_back(dbBRows);  // add the 1D array to the 2D array
   }
-     databaseB.close();
+  databaseB.close();
+  //  while(true){
   //int new_socket = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)&addrlen);
   //recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&src_addr,&src_addr_len);
   recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&aws, (socklen_t *)&addrlen);
@@ -84,42 +85,39 @@ int main(){
 
   //std::cout << "Checking for entry in db " << numberAsString << std::endl;
 
-     // print out what was read in
-     double dbValues[4];
-     char *point;
+  // print out what was read in
+  double dbValues[4];
+  char *point;
 
-     for (size_t i=0; i<dbB.size(); ++i)
-     {
-       if (dbB[i][0] == numberAsString)
-       {
-         for(int k=0; k<dbB[i].size(); k++)
-         {
-           const char * c = dbB[i][k].c_str();
-           dbValues[k] =  strtod(c, &point);
-           //std::cout << dbValues[k] << "*\n";
-          }
-       }
-     }
+  for (size_t i=0; i<dbB.size(); ++i)
+  {
+    if (dbB[i][0] == numberAsString)
+    {
+      for(int k=0; k<dbB[i].size(); k++)
+      {
+        const char * c = dbB[i][k].c_str();
+        dbValues[k] =  strtod(c, &point);
+        //std::cout << dbValues[k] << "*\n";
+      }
+    }
+  }
 
-     if (int(dbValues[0])!=0)
-     {
-       printf("The server B has found < 1 > matches\n");
-     }
-     else
-     {
-       printf("The server B has found < 0 > matches\n");
-     }
-
-
-   if (sendto(awsSoc, dbValues, 5*sizeof(double), 0, (struct sockaddr *)&aws2 , sizeof(aws2)) < 0)
-   {
-     perror("failed to send\n");
-     return -1;
-   }
-   else {
-     printf("The server A finished sending the ouput to AWS\n");
-   }
-
-
+  if (int(dbValues[0])!=0)
+  {
+    printf("The server B has found < 1 > matches\n");
+  }
+  else
+  {
+    printf("The server B has found < 0 > matches\n");
+  }
+    
+  if (sendto(awsSoc, dbValues, 5*sizeof(double), 0, (struct sockaddr *)&aws2 , sizeof(aws2)) < 0)
+  {
+    perror("failed to send\n");
+    return -1;
+  }
+  else {
+    printf("The server A finished sending the ouput to AWS\n");
+  }
 
 }
