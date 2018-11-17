@@ -47,6 +47,7 @@ int main(){
   std::vector< std::vector<std::string> > dbB;  // the 2D array to store the 1D array in
   std::vector<std::string> dbBRows;             // array of values for one line only
 
+  // Read the csv database. This code is borrowed and modified from stackeroverflow disccusion as indicated in readme
   std::ifstream databaseB ("database_b.csv");
   if(!databaseB.is_open()) std::cout << "Error: Couldn't open database" << std::endl;
   std::string link;
@@ -69,7 +70,7 @@ int main(){
   std::stringstream x;
   x << Vals[0];
   std::string numberAsString(x.str());
-
+  // The follow logic pics out values that match in CSV database and stores them in an array to send to AWS
   double dbValues[4];
   char *point;
 

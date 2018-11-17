@@ -20,7 +20,8 @@ struct MonitorDataset{
 };
 
 int main(){
-  printf("The monitor is up and running\n");
+
+  //define constants to use
   int awsSoc;
   struct MonitorDataset RecievedData;
   struct sockaddr_in aws;
@@ -28,7 +29,7 @@ int main(){
   int AcceptedValue;
   double CalculatedValues[5];
 
-
+  //create socket
   if((awsSoc = socket(AF_INET, SOCK_STREAM,0)) == 0)
   {
     printf("\nerror, Server A socket creation failed");
@@ -39,12 +40,14 @@ int main(){
   aws.sin_port = htons(AWSPORT);
 
 
+  //connect and recieve data from AWS
+  printf("The monitor is up and running\n");
   if (connect(awsSoc, (struct sockaddr *)&aws, sizeof(aws)) < 0)
   {
     perror("Connection Failed");
     return -1;
   }
-  //while (true){
+
   if (recv(awsSoc, (void *) &RecievedData, sizeof(RecievedData),0) < 0)
   {
     perror("recieve failed");
@@ -54,6 +57,7 @@ int main(){
     std::cout << "Found no matches for link <" << RecievedData.clientInput[0] << ">" << std::endl;
   }
   else{
+    //output Data
     std::cout << "The monitor recieved Link ID=<"
     << RecievedData.clientInput[0]
     << ">, size=<"
@@ -82,10 +86,6 @@ int main(){
     << std::setprecision(4) << RecievedData.CalculatedValues[2]
     << "> ms,"
     << std::endl;
-
-    const char *MSG="ACK";
-    send(awsSoc, MSG, strlen(MSG), 0);
   }
-  //}
 
 }

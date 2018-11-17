@@ -27,6 +27,7 @@
 
 int main(){
   printf("The Server A is up and running using UDP port <21687>\n");
+  //define constants
   int awsSoc;
   struct sockaddr_in aws, aws2;
   int addrlen = sizeof(int);
@@ -44,7 +45,7 @@ int main(){
   aws2.sin_addr.s_addr = inet_addr("127.0.0.1");
   aws2.sin_port = htons(UDPAWS);
 
-
+  // Read the csv database. This code is borrowed and modified from stackeroverflow disccusion as indicated in readme
   std::ifstream databaseA ("database_a.csv");
   if(!databaseA.is_open()) std::cout << "Error: Couldn't open database" << std::endl;
   std::string link;
@@ -82,7 +83,7 @@ int main(){
   // print out what was read in
   double dbValues[4];
   char *point;
-
+  // The follow logic pics out values that match in CSV database and stores them in an array to send to AWS
   for (size_t i=0; i<dbA.size(); ++i)
   {
     if (dbA[i][0] == numberAsString)
