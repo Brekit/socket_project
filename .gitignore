@@ -1,8 +1,7 @@
-.o
-.out
 .DS_Store
 readme
 awsoutput
+client
 monitoroutput
 serverAoutput
 serverBoutput
