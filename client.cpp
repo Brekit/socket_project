@@ -15,7 +15,7 @@
 //define Port to recieve from AWS
 #define PORT 25687
 
-//Function to recieve Data from AWS, which is 
+//Function to recieve Data from AWS, which is
 void recieveFromAWS(int socket, int suppliedLink){
   double AWSData;
   if (recv(socket, &AWSData, sizeof(AWSData),0) < 0) {
@@ -28,7 +28,7 @@ void recieveFromAWS(int socket, int suppliedLink){
 }
 
 int main(int argc, char* argv[]){
-  char *pEnd;
+  //define constants
   printf("The client is up and running\n");
   int link = atoi(argv[1]);
   int size = atoi(argv[2]);
@@ -36,7 +36,7 @@ int main(int argc, char* argv[]){
   int Vals[3] = {link, size, power};
   double Data;
 
-  //struct sockaddr_in address;
+  //Create soceket
   int awsSoc = 0, valread;
   struct sockaddr_in aws;
   if ((awsSoc = socket(AF_INET, SOCK_STREAM, 0)) < 0)
@@ -51,14 +51,13 @@ int main(int argc, char* argv[]){
   aws.sin_port = htons(PORT);
   aws.sin_addr.s_addr = inet_addr("127.0.0.1");
 
-  char buffer[2048] = {0};
-
+  //Connect to AWS
   if (connect(awsSoc, (struct sockaddr *)&aws, sizeof(aws)) < 0)
   {
     perror("Connection Failed");
     return -1;
   }
-  //while(true){
+  // send data to AWS in an array of ints that client supplied
   if (send(awsSoc, (char*)Vals, 3*sizeof(int), 0) < 0){
     perror("failed to send\n");
     return -1;
@@ -66,6 +65,8 @@ int main(int argc, char* argv[]){
     printf("The client sent link=%d, size=%d, power=%d to AWS.\n", link, size, power);
   }
 
+  //recieve data from AWS
   recieveFromAWS(awsSoc, link);
+  
   close(awsSoc);
 }
