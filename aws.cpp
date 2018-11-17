@@ -104,12 +104,10 @@ double * recieveFromB(int socket, struct sockaddr_in *server, int address_length
   {
     if(int(linkBVals[0])==0)
     {
-      std::cout << "LinkVal :" << linkBVals[0] << std::endl;
       std::cout << "The AWS recieved <0> matches from Backend-server <" << Val << "> using UDP port <24687>" << std::endl;
     }
     else
     {
-      std::cout << "LinkVal :" << linkBVals[0] << std::endl;
       std::cout << "The AWS recieved <1> matches from Backend-server <" << Val << "> using UDP port <24687>" << std::endl;
     }
   }
@@ -117,14 +115,14 @@ double * recieveFromB(int socket, struct sockaddr_in *server, int address_length
 }
 
 // This function accepts an array of client supplied inputs and submits them to server A
-int sendDatatoA(int socket, struct sockaddr_in server, int *DataA){
-  if (sendto(socket, (char*)DataA, 3*sizeof(int), 0, (struct sockaddr *)&server , sizeof(server)) < 0)
+int sendDatatoA(int socket, struct sockaddr_in server, int *Data){
+  if (sendto(socket, (char*)Data, 3*sizeof(int), 0, (struct sockaddr *)&server , sizeof(server)) < 0)
   {
     perror("Send to server A failed");
     return -1;
   }
   else {
-    std::cout << "AWS sent link ID=<" << DataA[0] << "> to server A using UDP over port <24687>" <<std::endl;
+    std::cout << "AWS sent link ID=<" << Data[0] << "> to server A using UDP over port <24687>" <<std::endl;
     return 0;
   }
 }
