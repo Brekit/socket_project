@@ -12,9 +12,10 @@
 #include <iostream>
 #include <iomanip>
 
-
+//define Port to recieve from AWS
 #define PORT 25687
 
+//Function to recieve Data from AWS, which is 
 void recieveFromAWS(int socket, int suppliedLink){
   double AWSData;
   if (recv(socket, &AWSData, sizeof(AWSData),0) < 0) {

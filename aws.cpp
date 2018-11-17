@@ -1,8 +1,3 @@
-
-//1 UDP, 24000+xxx1 TCP with client, 25000+xxx1 TCP with monitor, 26000+xxx
-//UDP 24687
-// TCP with Client 25687
-//TCP with Monitor 26687
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -62,8 +57,6 @@ int SendForCompute(int *array1, double *array2, int socket, struct sockaddr_in s
 
 struct CalculatedValuesFromC recieveComputed(int socket, struct sockaddr_in *server, int address_length){
   struct CalculatedValuesFromC Dataset;
-  //static double ComputedValues[8];
-  //double linkBVals[5];c
   if (recvfrom(socket, (void *) &Dataset, sizeof(Dataset),0,(struct sockaddr *)&server,(socklen_t*)&address_length) < 0)
   {
     perror("Couldnt recieve from server A");
@@ -72,17 +65,14 @@ struct CalculatedValuesFromC recieveComputed(int socket, struct sockaddr_in *ser
   {
     std::cout << "The AWS recieved outputs from Backend-server C using UDP port <24687>" << std::endl;
   }
-  //close(socket);
   return Dataset;
 }
 
 double * recieveFromA(int socket, struct sockaddr_in *server, int address_length, char Val){
   static double linkAVals[5];
-  //double linkBVals[5];c
   if (recvfrom(socket,linkAVals, 5*sizeof(double),0,(struct sockaddr *)&server,(socklen_t*)&address_length) < 0)
   {
     perror("Couldnt recieve from server A");
-    //return -1.00;
   }
   else
   {
@@ -97,17 +87,15 @@ double * recieveFromA(int socket, struct sockaddr_in *server, int address_length
       std::cout << "The AWS recieved <1> matches from Backend-server <" << Val << "> using UDP port <24687>" << std::endl;
     }
   }
-  //close(socket);
   return linkAVals;
 }
 
 double * recieveFromB(int socket, struct sockaddr_in *server, int address_length, char Val){
   static double linkBVals[5];
-  //double linkBVals[5];c
   if (recvfrom(socket,linkBVals, 5*sizeof(double),0,(struct sockaddr *)&server,(socklen_t*)&address_length) < 0)
   {
     perror("Couldnt recieve from server A");
-    //return -1.00;
+
   }
   else
   {
@@ -122,7 +110,6 @@ double * recieveFromB(int socket, struct sockaddr_in *server, int address_length
       std::cout << "The AWS recieved <1> matches from Backend-server <" << Val << "> using UDP port <24687>" << std::endl;
     }
   }
-  //close(socket);
   return linkBVals;
 }
 
@@ -138,7 +125,6 @@ int sendData(int socket, struct sockaddr_in server, int *Data){
     return 0;
   }
 }
-
 
 
 int *recieveClient(int socket){
@@ -189,7 +175,6 @@ int SendToClient (int socket, double e2eDelay){
 
 int main(){
   printf("The AWS is up and running\n");
-  //FusedArray Sample;
   CalculatedValuesFromC CalculatedDatasetA, CalculatedDatasetB ;
   int cli_soc, a_soc, b_soc, c_soc, mon_soc, awsAsClient;
   struct sockaddr_in client, serverA, serverB, serverC, monitor, clientAws;
@@ -250,7 +235,6 @@ int main(){
     return -1;
   }
 
-
   if (bind(cli_soc,  (struct sockaddr *)&client, sizeof client) < 0)
   {
     perror("\nbind to socket failed");
@@ -263,9 +247,8 @@ int main(){
     return -1;
   }
 
-
-
   // ============ Listen from client and send to server A,B,C ============ //
+  while(true){
   if (listen(mon_soc,6) < 0)
   {
     perror("\nlisten failed monitor");
@@ -278,13 +261,11 @@ int main(){
     return -1;
   }
 
-  while(true){
 
-
-  int *RecievedInputsFromClient;
-  double *ResultsFromA;
-  double *ResultsFromB;
-  double *CalculatedValues;
+    int *RecievedInputsFromClient;
+    double *ResultsFromA;
+    double *ResultsFromB;
+    double *CalculatedValues;
 
 
   int cli_child = accept(cli_soc, (struct sockaddr *)&client,(socklen_t*)& cli_len);
@@ -298,48 +279,28 @@ int main(){
   sendData(awsAsClient, serverB, RecievedInputsFromClient);
   ResultsFromB = recieveFromB(awsAsClient, &serverB, servB_len, 'B');
 
-  std::cout << "=====" << std::endl;
-  std::cout << "Results A:" << int(ResultsFromA[0]) << std::endl;
-  std::cout << "Results B:" << int(ResultsFromB[0]) << std::endl;
-  std::cout << "=====" << std::endl;
-
-
   if ((int(ResultsFromA[0])==0) && (int(ResultsFromA[0])==0))
   {
     SendToMonitor(mon_child, RecievedInputsFromClient , 0,0,0);
-    std::cout << "**NeitherM**" << std::endl;
-
     SendToClient(cli_child, 0);
-    std::cout << "**NeitherC**" << std::endl;
 
   } else if (int(ResultsFromA[0])!=0){
     SendForCompute(RecievedInputsFromClient, ResultsFromA, awsAsClient, serverC);
     struct CalculatedValuesFromC CalculatedDatasetA = recieveComputed(awsAsClient, &serverC, servC_len);
-    //std::cout << "The AWSA sent delay=<" << std::setprecision(2) << CalculatedDatasetA.E2E << ">ms to the client using TCP over port <26687>" << std::endl;
-    //std::cout << "The AWSA sent delay=<"  << CalculatedDatasetA.dProp << ">ms to the client using TCP over port <25687>" << std::endl;
     SendToMonitor(mon_child, RecievedInputsFromClient,CalculatedDatasetA.dTrans,CalculatedDatasetA.dProp,CalculatedDatasetA.E2E);
-    std::cout << "**AM**" << std::endl;
     SendToClient(cli_child, CalculatedDatasetA.E2E);
-    std::cout << "**1C**" << std::endl;
-    break;
+
   } else if (int(ResultsFromB[0])!=0){
       SendForCompute(RecievedInputsFromClient, ResultsFromB, awsAsClient, serverC);
       struct CalculatedValuesFromC CalculatedDatasetB = recieveComputed(awsAsClient, &serverC, servC_len);
-      //std::cout << "The AWSB sent delay=<" << std::setprecision(2) << CalculatedDatasetB.E2E << ">ms to the client using TCP over port <26687>" << std::endl;
       SendToMonitor(mon_child, RecievedInputsFromClient,CalculatedDatasetB.dTrans,CalculatedDatasetB.dProp,CalculatedDatasetB.E2E );
-      std::cout << "**BM**" << std::endl;
       SendToClient(cli_child, CalculatedDatasetB.E2E);
-      std::cout << "**BC**" << std::endl;
-      break;
     } else {
     SendToMonitor(mon_child, RecievedInputsFromClient , 0,0,0);
-    std::cout << "**Aelse**" << std::endl;
-    break;
+
   }
-
-  //close(mon_child);
-  //close(cli_child);
-
+  close(mon_child);
+  close(cli_child);
 }
 
 }

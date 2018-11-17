@@ -1,11 +1,3 @@
-// use UDP port 22687
-// use UDP port 21687
-
-
-//1 UDP, 24000+xxx1 TCP with client, 25000+xxx1 TCP with monitor, 26000+xxx
-//UDP 24687
-// TCP with Client 25687
-//TCP with Monitor 26687
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -30,11 +22,8 @@ int main(){
   printf("The Server B is up and running using UDP on port <22687>\n");
   int awsSoc;
   struct sockaddr_in aws, aws2;
-  //struct sockaddr_storage src_addr;
-  //socklen_t src_addr_len=sizeof(src_addr);
   int addrlen = sizeof(int);
   int Vals[3];
-  //memset(&hints,0,sizeof(hints));
   if((awsSoc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
   {
     printf("\nerror, Server B socket creation failed");
@@ -53,10 +42,10 @@ int main(){
     return -1;
   }
 
-  std::string line, field;
+  std::string line, field; //initialize values to store the database contents
 
-  std::vector< std::vector<std::string> > dbB;  // the 2D array
-  std::vector<std::string> dbBRows;                // array of values for one line only
+  std::vector< std::vector<std::string> > dbB;  // the 2D array to store the 1D array in
+  std::vector<std::string> dbBRows;             // array of values for one line only
 
   std::ifstream databaseB ("database_b.csv");
   if(!databaseB.is_open()) std::cout << "Error: Couldn't open database" << std::endl;
@@ -73,9 +62,7 @@ int main(){
     dbB.push_back(dbBRows);  // add the 1D array to the 2D array
   }
   databaseB.close();
-  //  while(true){
-  //int new_socket = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)&addrlen);
-  //recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&src_addr,&src_addr_len);
+
   recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&aws, (socklen_t *)&addrlen);
   printf("The Server B received input <%d>\n", Vals[0]);
 
@@ -83,9 +70,6 @@ int main(){
   x << Vals[0];
   std::string numberAsString(x.str());
 
-  //std::cout << "Checking for entry in db " << numberAsString << std::endl;
-
-  // print out what was read in
   double dbValues[4];
   char *point;
 
@@ -97,7 +81,6 @@ int main(){
       {
         const char * c = dbB[i][k].c_str();
         dbValues[k] =  strtod(c, &point);
-        //std::cout << dbValues[k] << "*\n";
       }
     }
   }

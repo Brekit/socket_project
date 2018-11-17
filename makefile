@@ -10,12 +10,12 @@ aws:
 client:
 	./client
 serverA:
- ./serverAoutput
+	./serverAoutput
 serverB:
-./serverBoutput
+	./serverBoutput
 serverC:
-./serverCoutput
+	./serverCoutput
 monitor:
-./monitoroutput
-clean :
+	./monitoroutput
+clean:
 	rm client awsoutput serverAoutput serverBoutput serverCoutput monitoroutput
