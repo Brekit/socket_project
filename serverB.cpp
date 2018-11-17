@@ -110,14 +110,14 @@ int main(){
   {
     printf("The server B has found < 0 > matches\n");
   }
-    
+
   if (sendto(awsSoc, dbValues, 5*sizeof(double), 0, (struct sockaddr *)&aws2 , sizeof(aws2)) < 0)
   {
     perror("failed to send\n");
     return -1;
   }
   else {
-    printf("The server A finished sending the ouput to AWS\n");
+    printf("The server B finished sending the ouput to AWS\n");
   }
 
 }

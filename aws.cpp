@@ -173,9 +173,7 @@ int SendToMonitor(int socket, int *array1, double delayTrans, double delayProp, 
 int SendToClient (int socket, double e2eDelay){
   if (e2eDelay!= 0)
   {
-    char charData[50];
-    sprintf(charData, "%f", e2eDelay);
-    if (send(socket, charData, sizeof(charData),0) < 0)
+    if (send(socket, &e2eDelay, sizeof(e2eDelay),0) < 0)
     {
       perror("Couldnt send to Monitor!");
     }

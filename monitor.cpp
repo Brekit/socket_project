@@ -69,17 +69,17 @@ int main(){
     << std::endl;
 
     std::cout<< "Tt = <"
-    << std::setprecision(2) << RecievedData.CalculatedValues[0]
+    << std::setprecision(4) << RecievedData.CalculatedValues[0]
     << "> ms,"
     << std::endl;
 
     std::cout<< "Tp = <"
-    << std::setprecision(2) << RecievedData.CalculatedValues[1]
+    << std::setprecision(4) << RecievedData.CalculatedValues[1]
     << "> ms,"
     << std::endl;
 
     std::cout<< "Delay = <"
-    << std::setprecision(2) << RecievedData.CalculatedValues[2]
+    << std::setprecision(4) << RecievedData.CalculatedValues[2]
     << "> ms,"
     << std::endl;
 

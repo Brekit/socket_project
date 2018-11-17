@@ -79,9 +79,6 @@ int main(){
   x << Vals[0];
   std::string numberAsString(x.str());
 
-  std::cout << "Checking for entry in db " << numberAsString << std::endl;
-
-
   // print out what was read in
   double dbValues[4];
   char *point;
@@ -94,7 +91,6 @@ int main(){
       {
         const char * c = dbA[i][k].c_str();
         dbValues[k] =  strtod(c, &point);
-        std::cout << dbValues[k] << "*\n";
       }
     }
   }

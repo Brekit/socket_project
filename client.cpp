@@ -20,7 +20,7 @@ void recieveFromAWS(int socket, int suppliedLink){
   if (recv(socket, &AWSData, sizeof(AWSData),0) < 0) {
     perror("Failed to receive from AWS");
   } else if(AWSData!=0) {
-    std::cout << "The delay for link <" << suppliedLink << "> is <" << std::setprecision(2) <<  AWSData << ">ms" << std::endl;
+    std::cout << "The delay for link <" << suppliedLink << "> is <" << std::setprecision(4) <<  AWSData << ">ms" << std::endl;
   } else {
     std::cout << "Found no matches for link <" << suppliedLink << "> " << std::endl;
   }
@@ -67,6 +67,4 @@ int main(int argc, char* argv[]){
 
   recieveFromAWS(awsSoc, link);
   close(awsSoc);
-
-
 }
