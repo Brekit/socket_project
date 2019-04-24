@@ -1,11 +1,3 @@
-// use UDP port 22687
-// use UDP port 21687
-
-
-//1 UDP, 24000+xxx1 TCP with client, 25000+xxx1 TCP with monitor, 26000+xxx
-//UDP 24687
-// TCP with Client 25687
-//TCP with Monitor 26687
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -30,11 +22,8 @@ int main(){
   printf("The Server B is up and running using UDP on port <22687>\n");
   int awsSoc;
   struct sockaddr_in aws, aws2;
-  //struct sockaddr_storage src_addr;
-  //socklen_t src_addr_len=sizeof(src_addr);
   int addrlen = sizeof(int);
   int Vals[3];
-  //memset(&hints,0,sizeof(hints));
   if((awsSoc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
   {
     printf("\nerror, Server B socket creation failed");
@@ -53,73 +42,66 @@ int main(){
     return -1;
   }
 
-  std::string line, field;
+  std::string line, field; //initialize values to store the database contents
 
-  std::vector< std::vector<std::string> > dbB;  // the 2D array
-  std::vector<std::string> dbBRows;                // array of values for one line only
+  std::vector< std::vector<std::string> > dbB;  // the 2D array to store the 1D array in
+  std::vector<std::string> dbBRows;             // array of values for one line only
 
+  // Read the csv database. This code is borrowed and modified from stackeroverflow disccusion as indicated in readme
   std::ifstream databaseB ("database_b.csv");
   if(!databaseB.is_open()) std::cout << "Error: Couldn't open database" << std::endl;
   std::string link;
 
   while (getline(databaseB,line))    // get next line in file
   {
-      dbBRows.clear();
-      std::stringstream ss(line);
-      while (getline(ss,field,','))  // break line into comma delimitted fields
-      {
-          dbBRows.push_back(field);  // add each field to the 1D array
-      }
-      dbB.push_back(dbBRows);  // add the 1D array to the 2D array
+    dbBRows.clear();
+    std::stringstream ss(line);
+    while (getline(ss,field,','))  // break line into comma delimitted fields
+    {
+      dbBRows.push_back(field);  // add each field to the 1D array
+    }
+    dbB.push_back(dbBRows);  // add the 1D array to the 2D array
   }
-     databaseB.close();
-  //int new_socket = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)&addrlen);
-  //recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&src_addr,&src_addr_len);
+  databaseB.close();
+
   recvfrom(awsSoc,Vals, 3*sizeof(int),0, (struct sockaddr*)&aws, (socklen_t *)&addrlen);
   printf("The Server B received input <%d>\n", Vals[0]);
 
   std::stringstream x;
   x << Vals[0];
   std::string numberAsString(x.str());
+  // The follow logic pics out values that match in CSV database and stores them in an array to send to AWS
+  double dbValues[4];
+  char *point;
 
-  //std::cout << "Checking for entry in db " << numberAsString << std::endl;
+  for (size_t i=0; i<dbB.size(); ++i)
+  {
+    if (dbB[i][0] == numberAsString)
+    {
+      for(int k=0; k<dbB[i].size(); k++)
+      {
+        const char * c = dbB[i][k].c_str();
+        dbValues[k] =  strtod(c, &point);
+      }
+    }
+  }
 
-     // print out what was read in
-     double dbValues[4];
-     char *point;
+  if (int(dbValues[0])!=0)
+  {
+    printf("The server B has found < 1 > matches\n");
+  }
+  else
+  {
+    printf("The server B has found < 0 > matches\n");
+  }
 
-     for (size_t i=0; i<dbB.size(); ++i)
-     {
-       if (dbB[i][0] == numberAsString)
-       {
-         for(int k=0; k<dbB[i].size(); k++)
-         {
-           const char * c = dbB[i][k].c_str();
-           dbValues[k] =  strtod(c, &point);
-           //std::cout << dbValues[k] << "*\n";
-          }
-       }
-     }
-
-     if (int(dbValues[0])!=0)
-     {
-       printf("The server B has found < 1 > matches\n");
-     }
-     else
-     {
-       printf("The server B has found < 0 > matches\n");
-     }
-
-
-   if (sendto(awsSoc, dbValues, 5*sizeof(double), 0, (struct sockaddr *)&aws2 , sizeof(aws2)) < 0)
-   {
-     perror("failed to send\n");
-     return -1;
-   }
-   else {
-     printf("The server A finished sending the ouput to AWS\n");
-   }
-
-
+  if (sendto(awsSoc, dbValues, 5*sizeof(double), 0, (struct sockaddr *)&aws2 , sizeof(aws2)) < 0)
+  {
+    perror("failed to send\n");
+    return -1;
+  }
+  else {
+    printf("The server B finished sending the ouput to AWS\n");
+  }
 
 }

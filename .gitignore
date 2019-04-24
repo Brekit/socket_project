@@ -1,3 +1,10 @@
-.o
-.out
-
+.DS_Store
+readme
+awsoutput
+client
+monitoroutput
+serverAoutput
+serverBoutput
+serverCoutput
+untitled.x
+*.tar.gz

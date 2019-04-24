@@ -10,10 +10,7 @@
 #include <arpa/inet.h>
 #include <sys/wait.h>
 #include <iostream>
-#include <string.h>
-#include <fstream>
-#include <sstream>
-#include <vector>
+#include <iomanip>
 
 #define AWSPORT 26687
 
@@ -23,7 +20,8 @@ struct MonitorDataset{
 };
 
 int main(){
-  printf("The monitor is up and running\n");
+
+  //define constants to use
   int awsSoc;
   struct MonitorDataset RecievedData;
   struct sockaddr_in aws;
@@ -31,6 +29,7 @@ int main(){
   int AcceptedValue;
   double CalculatedValues[5];
 
+  //create socket
   if((awsSoc = socket(AF_INET, SOCK_STREAM,0)) == 0)
   {
     printf("\nerror, Server A socket creation failed");
@@ -40,34 +39,53 @@ int main(){
   aws.sin_addr.s_addr = inet_addr("127.0.0.1");
   aws.sin_port = htons(AWSPORT);
 
-  if (bind(awsSoc,  (struct sockaddr *)&aws, sizeof aws) < 0)
+
+  //connect and recieve data from AWS
+  printf("The monitor is up and running\n");
+  if (connect(awsSoc, (struct sockaddr *)&aws, sizeof(aws)) < 0)
   {
-    perror("\nbind to monitor failed");
+    perror("Connection Failed");
     return -1;
   }
 
-  if (listen(awsSoc,6) < 0)
-  {
-    perror("\nlisten failed monitor");
-    return -1;
-  }
-
-int var = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)& addrlen);
-
-  if (recv(var, (void *) &RecievedData, sizeof(RecievedData),0) < 0)
+  if (recv(awsSoc, (void *) &RecievedData, sizeof(RecievedData),0) < 0)
   {
     perror("recieve failed");
     return -1;
   }
-  else{
-    printf("Recieved %d, %d, %d from aws",  RecievedData.clientInput[0], RecievedData.clientInput[1], RecievedData.clientInput[2]);
-    printf("Recieved %f, %f, %f from aws", RecievedData.CalculatedValues[0], RecievedData.CalculatedValues[1], RecievedData.CalculatedValues[2]);
+  if (RecievedData.CalculatedValues[0]==0){
+    std::cout << "Found no matches for link <" << RecievedData.clientInput[0] << ">" << std::endl;
   }
+  else{
+    //output Data
+    std::cout << "The monitor recieved Link ID=<"
+    << RecievedData.clientInput[0]
+    << ">, size=<"
+    << RecievedData.clientInput[1]
+    << ">, and power=<"
+    << RecievedData.clientInput[2]
+    << "> from AWS"
+    << std::endl;
 
-  // printf("The Server A received input:%d, %.2f\n", recievedSample.clientInput[0], recievedSample.dbValues[3]);
-  // printf("Link: %.2f\n", Testing.ChannelCap);
-  // printf("size: %d\n", recievedSample.clientInput[1]);
-  // printf("dProp: %.2f\n", Testing.dProp);
-  // printf("dTrans: %.2f\n", Testing.dTrans);
+    std::cout<< "The result for link <"
+    << RecievedData.clientInput[0]
+    << "> :"
+    << std::endl;
+
+    std::cout<< "Tt = <"
+    << std::setprecision(4) << RecievedData.CalculatedValues[0]
+    << "> ms,"
+    << std::endl;
+
+    std::cout<< "Tp = <"
+    << std::setprecision(4) << RecievedData.CalculatedValues[1]
+    << "> ms,"
+    << std::endl;
+
+    std::cout<< "Delay = <"
+    << std::setprecision(4) << RecievedData.CalculatedValues[2]
+    << "> ms,"
+    << std::endl;
+  }
 
 }

@@ -23,7 +23,7 @@
 #define AWS_SERVC 23687
 #define UDPport 24687
 
-
+//convert dBM to Watts to use in the program
 double dBmtoWatts(double dbm){
   double Watts;
   double x = dbm/10;
@@ -31,22 +31,25 @@ double dBmtoWatts(double dbm){
   return Watts;
 }
 
+//Fused array of client inputs and Database Values recieved from serverC
 struct FusedArray{
   int clientInput[3];
   double dbValues[5];
 };
 
+//Initialize the values we will calculate
 struct ComputeTheseValues{
   double ChannelCap, signalW, noiseW, dProp, dTrans, E2E;
 };
 
+//Calculate the values, this method takes all of recieved inputs from AWS and calculates them
 struct ComputeTheseValues Compute(double bandwith, double signalIndBm, double noiseIndBm, double distance, double speed, double size ){
   struct ComputeTheseValues computed;
   computed.signalW = dBmtoWatts(signalIndBm);
   computed.noiseW = dBmtoWatts(noiseIndBm);
   computed.ChannelCap = (bandwith*10e6) * (log2 (1+(computed.signalW/computed.noiseW)));
-  computed.dProp = (distance*1000)/(speed*10e7)/10e-6;
-  computed.dTrans = (size/computed.ChannelCap)/10e-6;
+  computed.dProp = (distance*1000)/(speed*10e7)/10e-9; //divding by the nano unit so small numbers become more readble
+  computed.dTrans = (size/computed.ChannelCap)/10e-9; //divding by the nano unit so small numbers become more readble
   computed.E2E = computed.dProp+computed.dTrans;
   return computed;
 }
@@ -57,12 +60,9 @@ int main(){
   double linkRate;
   FusedArray recievedSample;
   struct sockaddr_in aws, aws2;
-  //struct sockaddr_storage src_addr;
-  //socklen_t src_addr_len=sizeof(src_addr);
   int addrlen = sizeof(aws);
   int addrlen2 = sizeof(aws2);
-  //int Vals[3];
-  //memset(&hints,0,sizeof(hints));
+
   if((awsSoc = socket(AF_INET, SOCK_DGRAM,0)) == 0)
   {
     printf("\nerror, Server C socket creation failed");
@@ -82,21 +82,17 @@ int main(){
     return -1;
   }
 
-  //int new_socket = accept(awsSoc, (struct sockaddr *)&aws,(socklen_t*)&addrlen);
-  while(true){
+  //while(true){
   if (recvfrom(awsSoc,&recievedSample, sizeof(recievedSample),0, (struct sockaddr*)&aws, (socklen_t *)&addrlen) < 0)
   {
     perror("Recieve failed");
     return -1;
   }
-  //recv(awsSoc,Vals, 3*sizeof(int),0);
-  //close(awsSoc);
+
   printf("The Server C received link information of <%d>, file size <%d>, and signal power <%d>\n", recievedSample.clientInput[0], recievedSample.clientInput[1], recievedSample.clientInput[2]);
-          //Compute(double bandwith, double signalIndBm, double noiseIndBm, double distance, double speed, int size ){
+
   struct ComputeTheseValues Testing = Compute(recievedSample.dbValues[1], recievedSample.clientInput[2], recievedSample.dbValues[4], recievedSample.dbValues[2], recievedSample.dbValues[3], recievedSample.clientInput[1]);
   printf("The Server C finished calculation for link <%d>\n", recievedSample.clientInput[0]);
-
-  //sendto(c_soc, (char*)&Sample, sizeof(Sample), 0, (struct sockaddr *)&serverC , sizeof(serverC))
 
   if (sendto(awsSoc,&Testing, sizeof(Testing),0, (struct sockaddr*)&aws2, sizeof(aws2)) < 0)
   {
@@ -107,5 +103,5 @@ int main(){
     printf("The Server C finished sending the output to AWS\n");
   }
 
-}
+  //}
 }

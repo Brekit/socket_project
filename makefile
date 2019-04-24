@@ -1,19 +1,21 @@
 all:
-	g++ aws.cpp -o aws
+	g++ aws.cpp -o awsoutput
 	g++ client.cpp -o client
-	g++ serverA.cpp -o serverA
-	g++ serverB.cpp -o serverB
-	g++ serverC.cpp -o serverC
-	g++ monitor.cpp -o monitor
+	g++ serverA.cpp -o serverAoutput
+	g++ serverB.cpp -o serverBoutput
+	g++ serverC.cpp -o serverCoutput
+	g++ monitor.cpp -o monitoroutput
 aws:
-	g++ aws.cpp -o aws
+	./awsoutput
 client:
-	g++ client.cpp -o client
-server:
-	g++ serverA.cpp -o serverA
-	g++ serverB.cpp -o serverB
-	g++ serverC.cpp -o serverC
+	./client
+serverA:
+	./serverAoutput
+serverB:
+	./serverBoutput
+serverC:
+	./serverCoutput
 monitor:
-	g++ monitor.cpp -o monitor
-clean :
-	rm client aws serverA serverB serverC monitor
+	./monitoroutput
+clean:
+	rm client awsoutput serverAoutput serverBoutput serverCoutput monitoroutput
